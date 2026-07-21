@@ -25,6 +25,10 @@ const adminService = {
     const res = await api.delete(`/admin/users/${id}`);
     return res.data;
   },
+  fixStaleRoles: async () => {
+    const res = await api.post('/admin/fix-roles');
+    return res.data;
+  },
   getAllBlogs: async (params) => {
     const res = await api.get('/admin/blogs', { params });
     return res.data;

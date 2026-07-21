@@ -50,6 +50,15 @@ exports.getAllUsers = async (req, res, next) => {
     const total = await User.countDocuments();
     const users = await User.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
 
+    const needsFix = users.filter((u) => !VALID_ROLES.includes(u.role));
+    if (needsFix.length > 0) {
+      await User.updateMany(
+        { role: { $nin: VALID_ROLES } },
+        { $set: { role: 'user' } }
+      );
+      needsFix.forEach((u) => { u.role = 'user'; });
+    }
+
     res.status(200).json({
       success: true,
       data: users,
@@ -59,6 +68,23 @@ exports.getAllUsers = async (req, res, next) => {
         total,
         pages: Math.ceil(total / limit),
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.fixStaleRoles = async (req, res, next) => {
+  try {
+    const result = await User.updateMany(
+      { role: { $nin: VALID_ROLES } },
+      { $set: { role: 'user' } }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Fixed ${result.modifiedCount} user(s) with invalid roles`,
+      data: { modifiedCount: result.modifiedCount },
     });
   } catch (error) {
     next(error);
@@ -104,6 +130,8 @@ exports.updateUserRole = async (req, res, next) => {
   }
 };
 
+const VALID_ROLES = ['user', 'admin'];
+
 exports.updateUser = async (req, res, next) => {
   try {
     const { name, email, bio, isActive, password } = req.body;
@@ -111,6 +139,10 @@ exports.updateUser = async (req, res, next) => {
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (!VALID_ROLES.includes(user.role)) {
+      user.role = 'user';
     }
 
     if (name !== undefined) user.name = name;
@@ -137,6 +169,10 @@ exports.toggleUserActive = async (req, res, next) => {
 
     if (user._id.toString() === req.user._id.toString()) {
       return res.status(400).json({ success: false, message: 'Cannot deactivate your own account' });
+    }
+
+    if (!VALID_ROLES.includes(user.role)) {
+      user.role = 'user';
     }
 
     user.isActive = !user.isActive;

@@ -26,7 +26,13 @@ const ManageUsers = () => {
   const [pendingRole, setPendingRole] = useState('');
 
   useEffect(() => {
-    fetchUsers();
+    const fixAndFetch = async () => {
+      try {
+        await adminService.fixStaleRoles();
+      } catch {}
+      fetchUsers();
+    };
+    fixAndFetch();
   }, []);
 
   const fetchUsers = async () => {

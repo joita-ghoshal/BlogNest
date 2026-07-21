@@ -13,6 +13,7 @@ const {
   getAllComments,
   deleteComment,
   getAllCategories,
+  fixStaleRoles,
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -21,6 +22,7 @@ router.use(protect, admin);
 
 router.get('/stats', getStats);
 
+router.post('/fix-roles', fixStaleRoles);
 router.get('/users', getAllUsers);
 router.put('/users/:id/role', updateUserRole);
 router.put('/users/:id', updateUser);
