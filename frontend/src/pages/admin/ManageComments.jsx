@@ -1,52 +1,112 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { HiTrash } from 'react-icons/hi';
 import { Helmet } from 'react-helmet-async';
-import adminService from '../../services/adminService';
-import AdminTable from '../../components/admin/AdminTable';
-import ConfirmModal from '../../components/common/ConfirmModal';
-import Loading from '../../components/common/Loading';
-import { formatDate, truncateText } from '../../utils/helpers';
 import toast from 'react-hot-toast';
+import adminService from '../../services/adminService';
+import { formatDate, truncateText } from '../../utils/helpers';
+import AdminTable from '../../components/admin/AdminTable';
+import LoadingSkeleton from '../../components/common/LoadingSkeleton';
 
 const ManageComments = () => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
 
-  useEffect(() => { fetchComments(); }, []);
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await adminService.getAllComments();
+        setComments(res.data?.comments || res.comments || []);
+      } catch {
+        toast.error('Failed to fetch comments');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchComments();
+  }, []);
 
-  const fetchComments = async () => {
+  const handleDelete = async (id) => {
     try {
-      const res = await adminService.getAllComments();
-      setComments(res.comments || res.data || []);
-    } catch {} finally { setLoading(false); }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await adminService.adminDeleteComment(deleteId);
-      setComments((prev) => prev.filter((c) => c._id !== deleteId));
+      await adminService.adminDeleteComment(id);
+      setComments((prev) => prev.filter((c) => c._id !== id));
       toast.success('Comment deleted');
-    } catch { toast.error('Failed to delete comment'); }
+      setDeleteId(null);
+    } catch {
+      toast.error('Failed to delete comment');
+    }
   };
 
-  const columns = [
-    { key: 'content', label: 'Comment', render: (row) => <span className="text-sm line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{truncateText(row.content, 80)}</span> },
-    { key: 'user', label: 'User', render: (row) => <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{row.user?.name || 'Unknown'}</span> },
-    { key: 'blog', label: 'Blog', render: (row) => <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{row.blog?.title || 'Deleted'}</span> },
-    { key: 'createdAt', label: 'Date', render: (row) => <span className="text-xs sm:text-sm whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>{formatDate(row.createdAt)}</span> },
-    { key: 'actions', label: 'Actions', render: (row) => (
-      <button onClick={() => setDeleteId(row._id)} className="px-3 py-1 text-xs font-medium text-white rounded-lg" style={{ backgroundColor: '#EF4444' }}>Delete</button>
-    )},
-  ];
+  if (loading) {
+    return (
+      <div className="p-6 sm:p-8">
+        <LoadingSkeleton type="table" />
+      </div>
+    );
+  }
+
+  const columns = ['Comment', 'User', 'Blog', 'Date', 'Actions'];
+
+  const rows = comments.map((comment) => ({
+    _id: comment._id,
+    cells: [
+      <span className="text-sm truncate block max-w-[300px]" style={{ color: 'var(--text-primary)' }}>
+        {truncateText(comment.content || '', 80)}
+      </span>,
+      <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{comment.user?.name || 'Unknown'}</span>,
+      <span className="text-sm truncate block max-w-[200px]" style={{ color: 'var(--text-secondary)' }}>
+        {comment.blog?.title || 'Unknown'}
+      </span>,
+      <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(comment.createdAt)}</span>,
+      <button onClick={() => setDeleteId(comment._id)} className="p-2 rounded-lg" style={{ color: '#EF4444' }}>
+        <HiTrash className="w-4 h-4" />
+      </button>,
+    ],
+  }));
 
   return (
     <>
-      <Helmet><title>Manage Comments - Admin - BlogNest</title></Helmet>
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8" style={{ color: 'var(--text-primary)' }}>Manage Comments</h1>
-        {loading ? <Loading /> : <AdminTable columns={columns} data={comments} />}
+      <Helmet>
+        <title>Manage Comments - Admin - BlogNest</title>
+      </Helmet>
+
+      <div className="p-6 sm:p-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>
+            Manage Comments
+          </h1>
+
+          <div className="rounded-2xl p-6 sm:p-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+            <AdminTable columns={columns} rows={rows} />
+          </div>
+        </motion.div>
+
+        {deleteId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+            onClick={() => setDeleteId(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              className="rounded-2xl p-6 sm:p-8 max-w-md w-full space-y-5"
+              style={{ backgroundColor: 'var(--bg-secondary)' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-center" style={{ color: 'var(--text-primary)' }}>Delete Comment?</h3>
+              <p className="text-center" style={{ color: 'var(--text-secondary)' }}>This action cannot be undone.</p>
+              <div className="flex gap-4">
+                <button onClick={() => setDeleteId(null)} className="flex-1 py-3 px-6 text-base font-medium rounded-xl border" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>Cancel</button>
+                <button onClick={() => handleDelete(deleteId)} className="flex-1 py-3 px-6 text-base font-semibold rounded-xl" style={{ backgroundColor: '#EF4444', color: '#FFF' }}>Delete</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </div>
-      <ConfirmModal isOpen={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete} title="Delete Comment" message="Are you sure you want to delete this comment?" />
     </>
   );
 };

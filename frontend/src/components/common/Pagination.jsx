@@ -17,11 +17,11 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   }
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-8">
+    <div className="flex items-center justify-center gap-2 mt-10">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--bg-tertiary)]"
         style={{
           color: 'var(--text-secondary)',
           backgroundColor: 'var(--bg-secondary)',
@@ -34,12 +34,16 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         <>
           <button
             onClick={() => onPageChange(1)}
-            className="w-10 h-10 rounded-lg text-sm font-medium transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium transition-colors hover:bg-[var(--bg-tertiary)]"
             style={{ color: 'var(--text-secondary)', backgroundColor: 'var(--bg-secondary)' }}
           >
             1
           </button>
-          {start > 2 && <span style={{ color: 'var(--text-muted)' }}>...</span>}
+          {start > 2 && (
+            <span className="w-10 h-10 flex items-center justify-center text-sm" style={{ color: 'var(--text-muted)' }}>
+              ...
+            </span>
+          )}
         </>
       )}
 
@@ -47,7 +51,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         <button
           key={page}
           onClick={() => onPageChange(page)}
-          className="w-10 h-10 rounded-lg text-sm font-medium transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium transition-colors"
           style={{
             backgroundColor: currentPage === page ? '#00D4D8' : 'var(--bg-secondary)',
             color: currentPage === page ? '#fff' : 'var(--text-secondary)',
@@ -59,10 +63,14 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
       {end < totalPages && (
         <>
-          {end < totalPages - 1 && <span style={{ color: 'var(--text-muted)' }}>...</span>}
+          {end < totalPages - 1 && (
+            <span className="w-10 h-10 flex items-center justify-center text-sm" style={{ color: 'var(--text-muted)' }}>
+              ...
+            </span>
+          )}
           <button
             onClick={() => onPageChange(totalPages)}
-            className="w-10 h-10 rounded-lg text-sm font-medium transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium transition-colors hover:bg-[var(--bg-tertiary)]"
             style={{ color: 'var(--text-secondary)', backgroundColor: 'var(--bg-secondary)' }}
           >
             {totalPages}
@@ -73,7 +81,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--bg-tertiary)]"
         style={{
           color: 'var(--text-secondary)',
           backgroundColor: 'var(--bg-secondary)',

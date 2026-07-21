@@ -1,54 +1,41 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { HiHeart } from 'react-icons/hi';
-import useAuth from '../../hooks/useAuth';
-import blogService from '../../services/blogService';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { HiHeart } from "react-icons/hi";
+import useAuth from "../../hooks/useAuth";
+import { blogService } from "../../services/blogService";
 
-const BlogLikeButton = ({ blog, onToggle }) => {
+export default function BlogLikeButton({ blogId, likes = [], onToggle }) {
   const { user } = useAuth();
-  const [liked, setLiked] = useState(blog?.likes?.includes(user?._id) || false);
-  const [count, setCount] = useState(blog?.likes?.length || 0);
-  const [animating, setAnimating] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const isLiked = user && likes.includes(user._id);
 
   const handleToggle = async () => {
-    if (!user) {
-      toast.error('Please login to like');
-      return;
-    }
-    setAnimating(true);
-    setTimeout(() => setAnimating(false), 300);
+    if (!user) return;
+    setLoading(true);
     try {
-      const res = await blogService.toggleLike(blog._id);
-      const data = res.data || res;
-      setLiked(data.isLiked);
-      setCount(data.likeCount ?? data.likes?.length ?? 0);
-      onToggle?.({ ...blog, likes: data.likes || blog.likes, isLiked: data.isLiked });
-    } catch {
-      toast.error('Failed to toggle like');
+      const data = await blogService.toggleLike(blogId);
+      if (onToggle) onToggle(data);
+    } catch (err) {
+      console.error("Failed to toggle like:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <motion.button
-      whileTap={{ scale: 0.9 }}
+    <button
       onClick={handleToggle}
-      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+      disabled={!user || loading}
+      className={`flex items-center gap-2 py-2 px-4 rounded-xl font-medium text-sm transition-all ${
+        user ? "hover:opacity-80 cursor-pointer" : "opacity-50 cursor-not-allowed"
+      }`}
       style={{
-        backgroundColor: liked ? '#FEF2F2' : 'var(--bg-secondary)',
-        color: liked ? '#EF4444' : 'var(--text-muted)',
-        border: '1px solid var(--border)',
+        backgroundColor: isLiked ? "#FEE2E2" : "var(--bg-secondary)",
+        color: isLiked ? "#EF4444" : "var(--text-secondary)",
+        border: `1px solid ${isLiked ? "#FCA5A5" : "var(--border)"}`,
       }}
     >
-      <motion.div
-        animate={animating ? { scale: [1, 1.5, 1] } : {}}
-        transition={{ duration: 0.3 }}
-      >
-        <HiHeart size={18} className={liked ? 'fill-current' : ''} />
-      </motion.div>
-      <span>{count}</span>
-    </motion.button>
+      <HiHeart className={`text-lg ${isLiked ? "fill-current" : ""}`} />
+      <span>{likes.length}</span>
+    </button>
   );
-};
-
-export default BlogLikeButton;
+}

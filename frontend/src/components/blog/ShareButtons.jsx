@@ -1,54 +1,86 @@
-import { useState } from 'react';
-import { FiTwitter, FiLinkedin, FiFacebook, FiLink } from 'react-icons/fi';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { HiLink } from "react-icons/hi";
+import {
+  FaTwitter,
+  FaFacebookF,
+  FaLinkedinIn,
+} from "react-icons/fa";
 
-const ShareButtons = ({ blog }) => {
-  const url = typeof window !== 'undefined' ? window.location.href : '';
-  const title = blog?.title || 'BlogNest Blog';
+export default function ShareButtons({ title, url }) {
+  const [copied, setCopied] = useState(false);
+  const shareUrl = url || window.location.href;
+  const encodedUrl = encodeURIComponent(shareUrl);
+  const encodedTitle = encodeURIComponent(title || "");
 
-  const shareTwitter = () => {
-    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
   };
-
-  const shareLinkedIn = () => {
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
-  };
-
-  const shareFacebook = () => {
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-  };
-
-  const copyLink = () => {
-    navigator.clipboard.writeText(url);
-    toast.success('Link copied to clipboard!');
-  };
-
-  const buttons = [
-    { icon: FiTwitter, onClick: shareTwitter, color: '#1DA1F2', label: 'Twitter' },
-    { icon: FiFacebook, onClick: shareFacebook, color: '#1877F2', label: 'Facebook' },
-    { icon: FiLinkedin, onClick: shareLinkedIn, color: '#0A66C2', label: 'LinkedIn' },
-    { icon: FiLink, onClick: copyLink, color: '#00D4D8', label: 'Copy Link' },
-  ];
 
   return (
-    <div className="flex items-center gap-2 flex-wrap justify-end">
-      {buttons.map((btn) => (
-        <button
-          key={btn.label}
-          onClick={btn.onClick}
-          title={`Share on ${btn.label}`}
-          className="p-2.5 rounded-xl transition-all hover:scale-105"
-          style={{
-            backgroundColor: 'var(--bg-secondary)',
-            color: btn.color,
-            border: '1px solid var(--border)',
-          }}
-        >
-          <btn.icon size={18} />
-        </button>
-      ))}
+    <div className="flex flex-wrap items-center gap-2">
+      <a
+        href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 py-2 px-4 rounded-xl text-sm font-medium transition-all hover:opacity-80"
+        style={{
+          backgroundColor: "var(--bg-secondary)",
+          color: "var(--text-secondary)",
+          border: "1px solid var(--border)",
+        }}
+      >
+        <FaTwitter className="text-base" />
+        <span className="hidden sm:inline">Twitter</span>
+      </a>
+
+      <a
+        href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 py-2 px-4 rounded-xl text-sm font-medium transition-all hover:opacity-80"
+        style={{
+          backgroundColor: "var(--bg-secondary)",
+          color: "var(--text-secondary)",
+          border: "1px solid var(--border)",
+        }}
+      >
+        <FaFacebookF className="text-base" />
+        <span className="hidden sm:inline">Facebook</span>
+      </a>
+
+      <a
+        href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 py-2 px-4 rounded-xl text-sm font-medium transition-all hover:opacity-80"
+        style={{
+          backgroundColor: "var(--bg-secondary)",
+          color: "var(--text-secondary)",
+          border: "1px solid var(--border)",
+        }}
+      >
+        <FaLinkedinIn className="text-base" />
+        <span className="hidden sm:inline">LinkedIn</span>
+      </a>
+
+      <button
+        onClick={copyLink}
+        className="flex items-center gap-2 py-2 px-4 rounded-xl text-sm font-medium transition-all hover:opacity-80"
+        style={{
+          backgroundColor: copied ? "#00D4D8" : "var(--bg-secondary)",
+          color: copied ? "white" : "var(--text-secondary)",
+          border: `1px solid ${copied ? "#00D4D8" : "var(--border)"}`,
+        }}
+      >
+        <HiLink className="text-base" />
+        <span>{copied ? "Copied!" : "Copy Link"}</span>
+      </button>
     </div>
   );
-};
-
-export default ShareButtons;
+}

@@ -1,119 +1,191 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { HiPencil, HiTrash, HiPlus } from 'react-icons/hi';
 import { Helmet } from 'react-helmet-async';
-import { motion, AnimatePresence } from 'framer-motion';
-import { HiPlus, HiPencil, HiTrash } from 'react-icons/hi';
-import adminService from '../../services/adminService';
-import categoryService from '../../services/categoryService';
-import AdminTable from '../../components/admin/AdminTable';
-import ConfirmModal from '../../components/common/ConfirmModal';
-import Loading from '../../components/common/Loading';
+import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import adminService from '../../services/adminService';
+import { formatDate } from '../../utils/helpers';
+import AdminTable from '../../components/admin/AdminTable';
+import LoadingSkeleton from '../../components/common/LoadingSkeleton';
 
 const ManageCategories = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState(null);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [editingCat, setEditingCat] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { fetchCategories(); }, []);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+  } = useForm();
 
-  const fetchCategories = async () => {
-    try {
-      const res = await adminService.getAllCategories();
-      setCategories(res.categories || res.data || []);
-    } catch {} finally { setLoading(false); }
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await adminService.getAllCategories();
+        setCategories(res.data?.categories || res.categories || []);
+      } catch {
+        toast.error('Failed to fetch categories');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const openAddModal = () => {
+    setEditingCat(null);
+    reset({ name: '', description: '' });
+    setShowModal(true);
   };
 
-  const openModal = (cat = null) => {
-    setEditingCategory(cat);
-    setName(cat?.name || '');
-    setDescription(cat?.description || '');
-    setModalOpen(true);
+  const openEditModal = (cat) => {
+    setEditingCat(cat);
+    setValue('name', cat.name);
+    setValue('description', cat.description || '');
+    setShowModal(true);
   };
 
-  const handleSave = async () => {
-    if (!name.trim()) return;
-    setSaving(true);
+  const onSubmit = async (data) => {
     try {
-      if (editingCategory) {
-        await categoryService.updateCategory(editingCategory._id, { name, description });
-        setCategories((prev) => prev.map((c) => c._id === editingCategory._id ? { ...c, name, description } : c));
+      setSaving(true);
+      if (editingCat) {
+        await adminService.updateBlog(editingCat._id, data);
+        setCategories((prev) =>
+          prev.map((c) =>
+            c._id === editingCat._id ? { ...c, name: data.name, description: data.description } : c
+          )
+        );
         toast.success('Category updated');
       } else {
-        const res = await categoryService.createCategory({ name, description });
-        setCategories((prev) => [...prev, res.data || res.category || res]);
+        const res = await adminService.updateBlog('category', data);
+        const newCat = res.data?.category || res.category || res.data || res;
+        setCategories((prev) => [...prev, newCat]);
         toast.success('Category created');
       }
-      setModalOpen(false);
-      setName('');
-      setDescription('');
-    } catch { toast.error('Failed to save category'); }
-    finally { setSaving(false); }
+      setShowModal(false);
+    } catch {
+      toast.error('Failed to save category');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (id) => {
     try {
-      await categoryService.deleteCategory(deleteId);
-      setCategories((prev) => prev.filter((c) => c._id !== deleteId));
+      await adminService.adminDeleteComment(id);
+      setCategories((prev) => prev.filter((c) => c._id !== id));
       toast.success('Category deleted');
-    } catch { toast.error('Failed to delete category'); }
+      setDeleteId(null);
+    } catch {
+      toast.error('Failed to delete category');
+    }
   };
 
-  const columns = [
-    { key: 'name', label: 'Name', render: (row) => <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{row.name}</span> },
-    { key: 'description', label: 'Description', render: (row) => <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{row.description || '-'}</span> },
-    { key: 'blogCount', label: 'Blogs', render: (row) => <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{row.blogCount || 0}</span> },
-    { key: 'actions', label: 'Actions', render: (row) => (
-      <div className="flex gap-2">
-        <button onClick={() => openModal(row)} className="p-1.5 rounded-lg hover:bg-[var(--bg-tertiary)]" style={{ color: 'var(--text-muted)' }}><HiPencil size={16} /></button>
-        <button onClick={() => setDeleteId(row._id)} className="p-1.5 rounded-lg hover:bg-red-50" style={{ color: '#EF4444' }}><HiTrash size={16} /></button>
+  if (loading) {
+    return (
+      <div className="p-6 sm:p-8">
+        <LoadingSkeleton type="table" />
       </div>
-    )},
-  ];
+    );
+  }
+
+  const columns = ['Name', 'Description', 'Slug', 'Date', 'Actions'];
+
+  const rows = categories.map((cat) => ({
+    _id: cat._id,
+    cells: [
+      <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{cat.name}</span>,
+      <span className="text-sm truncate block max-w-[250px]" style={{ color: 'var(--text-secondary)' }}>{cat.description || '-'}</span>,
+      <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{cat.slug}</span>,
+      <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(cat.createdAt)}</span>,
+      <div className="flex items-center gap-2">
+        <button onClick={() => openEditModal(cat)} className="p-2 rounded-lg" style={{ color: '#00D4D8' }}><HiPencil className="w-4 h-4" /></button>
+        <button onClick={() => setDeleteId(cat._id)} className="p-2 rounded-lg" style={{ color: '#EF4444' }}><HiTrash className="w-4 h-4" /></button>
+      </div>,
+    ],
+  }));
 
   return (
     <>
-      <Helmet><title>Manage Categories - Admin - BlogNest</title></Helmet>
-      <div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Manage Categories</h1>
-          <button onClick={() => openModal()} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-xl" style={{ backgroundColor: '#00D4D8' }}>
-            <HiPlus size={18} /> Add Category
-          </button>
-        </div>
-        {loading ? <Loading /> : <AdminTable columns={columns} data={categories} />}
-      </div>
+      <Helmet>
+        <title>Manage Categories - Admin - BlogNest</title>
+      </Helmet>
 
-      <ConfirmModal isOpen={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete} title="Delete Category" message="Are you sure you want to delete this category?" />
+      <div className="p-6 sm:p-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Manage Categories</h1>
+            <button
+              onClick={openAddModal}
+              className="py-3 px-6 text-base font-semibold rounded-xl flex items-center gap-2"
+              style={{ backgroundColor: '#00D4D8', color: '#000' }}
+            >
+              <HiPlus className="w-5 h-5" /> Add Category
+            </button>
+          </div>
 
-      <AnimatePresence>
-        {modalOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/50" onClick={() => setModalOpen(false)} />
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative w-full max-w-md rounded-2xl p-5 sm:p-6 shadow-xl mx-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
-              <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>{editingCategory ? 'Edit' : 'Add'} Category</h3>
-              <div className="space-y-4">
+          <div className="rounded-2xl p-6 sm:p-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+            <AdminTable columns={columns} rows={rows} />
+          </div>
+        </motion.div>
+
+        {showModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+            onClick={() => setShowModal(false)}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="rounded-2xl p-6 sm:p-8 max-w-lg w-full space-y-5"
+              style={{ backgroundColor: 'var(--bg-secondary)' }} onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                {editingCat ? 'Edit Category' : 'Add Category'}
+              </h3>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Name</label>
-                  <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#00D4D8]/50" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)', color: 'var(--text-primary)' }} placeholder="Category name" />
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Name</label>
+                  <input {...register('name', { required: 'Name is required' })}
+                    className="w-full py-3 px-4 text-base rounded-xl outline-none"
+                    style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: errors.name ? '1px solid #EF4444' : '1px solid var(--border)' }} />
+                  {errors.name && <p className="text-sm mt-1" style={{ color: '#EF4444' }}>{errors.name.message}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Description</label>
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full px-4 py-2.5 rounded-xl text-sm outline-none resize-none focus:ring-2 focus:ring-[#00D4D8]/50" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)', color: 'var(--text-primary)' }} placeholder="Optional description" />
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Description</label>
+                  <textarea {...register('description')} rows={3}
+                    className="w-full py-3 px-4 text-base rounded-xl outline-none resize-none"
+                    style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} />
                 </div>
-              </div>
-              <div className="flex gap-3 mt-6 justify-end">
-                <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium rounded-lg border" style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>Cancel</button>
-                <button onClick={handleSave} disabled={!name.trim() || saving} className="px-4 py-2 text-sm font-medium text-white rounded-lg disabled:opacity-70" style={{ backgroundColor: '#00D4D8' }}>{saving ? 'Saving...' : 'Save'}</button>
+                <div className="flex gap-4">
+                  <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3 px-6 text-base font-medium rounded-xl border"
+                    style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>Cancel</button>
+                  <button type="submit" disabled={saving} className="flex-1 py-3 px-6 text-base font-semibold rounded-xl"
+                    style={{ backgroundColor: '#00D4D8', color: '#000' }}>
+                    {saving ? 'Saving...' : editingCat ? 'Update' : 'Create'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {deleteId && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+            onClick={() => setDeleteId(null)}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="rounded-2xl p-6 sm:p-8 max-w-md w-full space-y-5"
+              style={{ backgroundColor: 'var(--bg-secondary)' }} onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-xl font-bold text-center" style={{ color: 'var(--text-primary)' }}>Delete Category?</h3>
+              <p className="text-center" style={{ color: 'var(--text-secondary)' }}>Blogs in this category may be affected.</p>
+              <div className="flex gap-4">
+                <button onClick={() => setDeleteId(null)} className="flex-1 py-3 px-6 text-base font-medium rounded-xl border" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>Cancel</button>
+                <button onClick={() => handleDelete(deleteId)} className="flex-1 py-3 px-6 text-base font-semibold rounded-xl" style={{ backgroundColor: '#EF4444', color: '#FFF' }}>Delete</button>
               </div>
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </div>
     </>
   );
 };

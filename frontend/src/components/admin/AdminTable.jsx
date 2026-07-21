@@ -1,44 +1,49 @@
-const AdminTable = ({ columns, data, onRowAction }) => {
-  if (!data?.length) {
-    return (
-      <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
-        No data available
-      </div>
-    );
-  }
+import React from 'react';
 
+const AdminTable = ({ columns, rows }) => {
   return (
-    <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--border)' }}>
-      <table className="w-full text-sm min-w-[600px]">
-        <thead>
-          <tr style={{ backgroundColor: 'var(--bg-secondary)' }}>
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                className="px-3 sm:px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                style={{ color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}
-              >
-                {col.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, i) => (
-            <tr
-              key={row._id || i}
-              className="transition-colors hover:bg-[var(--bg-secondary)]"
-              style={{ borderBottom: '1px solid var(--border)' }}
-            >
+    <div className="overflow-x-auto">
+      <div className="min-w-[600px]">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b" style={{ borderColor: 'var(--border)' }}>
               {columns.map((col) => (
-                <td key={col.key} className="px-3 sm:px-4 py-3" style={{ color: 'var(--text-secondary)' }}>
-                  {col.render ? col.render(row) : row[col.key]}
-                </td>
+                <th
+                  key={col}
+                  className="py-3 px-4 text-left text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  {col}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr
+                key={row._id}
+                className="border-b transition-colors"
+                style={{ borderColor: 'var(--border)' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                {row.cells.map((cell, idx) => (
+                  <td key={idx} className="py-4 px-4">
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={columns.length} className="py-12 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+                  No data found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

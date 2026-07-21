@@ -17,11 +17,14 @@ const SearchBar = ({ onClose, initialValue = '' }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+    <form
+      onSubmit={handleSubmit}
+      className="relative flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+    >
       <div className="relative flex-1">
         <HiSearch
-          size={18}
-          className="absolute left-3 top-1/2 -translate-y-1/2"
+          size={20}
+          className="absolute left-4 top-1/2 -translate-y-1/2"
           style={{ color: 'var(--text-muted)' }}
         />
         <input
@@ -30,7 +33,7 @@ const SearchBar = ({ onClose, initialValue = '' }) => {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search blogs, categories, authors..."
           autoFocus
-          className="w-full pl-10 pr-10 py-3 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-[#00D4D8]/50 transition-all"
+          className="w-full pl-12 pr-10 py-3 px-4 text-base rounded-xl border outline-none focus:ring-2 focus:ring-[#00D4D8]/50 transition-all"
           style={{
             backgroundColor: 'var(--bg-primary)',
             borderColor: 'var(--border)',
@@ -41,16 +44,16 @@ const SearchBar = ({ onClose, initialValue = '' }) => {
           <button
             type="button"
             onClick={() => setQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2"
+            className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors hover:opacity-70"
             style={{ color: 'var(--text-muted)' }}
           >
-            <HiX size={16} />
+            <HiX size={18} />
           </button>
         )}
       </div>
       <button
         type="submit"
-        className="px-6 py-3 text-sm font-medium text-white rounded-xl"
+        className="px-6 py-3 text-base font-semibold text-white rounded-xl transition-opacity hover:opacity-90"
         style={{ backgroundColor: '#00D4D8' }}
       >
         Search
@@ -59,8 +62,11 @@ const SearchBar = ({ onClose, initialValue = '' }) => {
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-3 text-sm font-medium rounded-xl border"
-          style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+          className="px-6 py-3 text-base font-semibold rounded-xl border transition-colors hover:bg-[var(--bg-secondary)]"
+          style={{
+            borderColor: 'var(--border)',
+            color: 'var(--text-secondary)',
+          }}
         >
           Cancel
         </button>

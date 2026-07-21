@@ -1,79 +1,125 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import categoryService from '../../services/categoryService';
-import LoadingSkeleton from '../common/LoadingSkeleton';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import categoryService from "../../services/categoryService";
+import {
+  HiCode,
+  HiBookOpen,
+  HiPhotograph,
+  HiDesktopComputer,
+  HiMusicNote,
+  HiGlobeAlt,
+  HiLightBulb,
+  HiBeaker,
+} from "react-icons/hi";
 
-const PopularCategories = () => {
+const iconMap = {
+  technology: HiDesktopComputer,
+  code: HiCode,
+  programming: HiCode,
+  lifestyle: HiGlobeAlt,
+  travel: HiGlobeAlt,
+  photography: HiPhotograph,
+  design: HiLightBulb,
+  health: HiBeaker,
+  music: HiMusicNote,
+  education: HiBookOpen,
+};
+
+const defaultIcon = HiBookOpen;
+
+export default function PopularCategories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchCategories = async () => {
       try {
-        const res = await categoryService.getCategories();
-        setCategories(res.categories || res.data || res || []);
-      } catch {
-        setCategories([]);
+        const data = await categoryService.getCategories();
+        const cats = data.categories || data || [];
+        setCategories(cats.slice(0, 8));
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetch();
+    fetchCategories();
   }, []);
 
-  if (loading) return <LoadingSkeleton type="text" count={6} />;
+  const getIcon = (name) => {
+    const key = (name || "").toLowerCase();
+    for (const [k, v] of Object.entries(iconMap)) {
+      if (key.includes(k)) return v;
+    }
+    return defaultIcon;
+  };
+
+  if (loading) {
+    return (
+      <section className="py-14 sm:py-20" style={{ backgroundColor: "var(--bg-secondary)" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animate-pulse grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-24 rounded-2xl" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (!categories.length) return null;
 
   return (
-    <section className="py-16" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+    <section className="py-14 sm:py-20" style={{ backgroundColor: "var(--bg-secondary)" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-10"
+          transition={{ duration: 0.5 }}
+          className="mb-8"
         >
-          <h2 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "var(--text-primary)" }}>
             Popular Categories
           </h2>
-          <p className="mt-2" style={{ color: 'var(--text-muted)' }}>
-            Explore topics that interest you
+          <p className="mt-2 text-base" style={{ color: "var(--text-secondary)" }}>
+            Browse topics that interest you
           </p>
         </motion.div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {categories.slice(0, 8).map((cat, i) => (
-            <motion.div
-              key={cat._id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-            >
-              <Link
-                to={`/category/${cat.slug || cat._id}`}
-                className="block p-6 rounded-2xl text-center transition-all hover:shadow-md group"
-                style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border)' }}
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {categories.map((category, index) => {
+            const Icon = getIcon(category.name);
+            return (
+              <motion.div
+                key={category._id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.05 }}
               >
-                <div
-                  className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-3 text-xl"
-                  style={{ backgroundColor: '#00D4D815' }}
+                <Link
+                  to={`/blogs?category=${category.slug || category._id}`}
+                  className="block p-5 sm:p-6 rounded-2xl text-center transition-all hover:scale-[1.02]"
+                  style={{ backgroundColor: "var(--bg-primary)", border: "1px solid var(--border)" }}
                 >
-                  {cat.icon || '📂'}
-                </div>
-                <h3 className="text-sm font-semibold group-hover:text-[#00D4D8] transition-colors" style={{ color: 'var(--text-primary)' }}>
-                  {cat.name}
-                </h3>
-                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                  {cat.blogCount || 0} blogs
-                </p>
-              </Link>
-            </motion.div>
-          ))}
+                  <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center bg-[#00D4D8]/10">
+                    <Icon className="text-2xl text-[#00D4D8]" />
+                  </div>
+                  <h3 className="mt-3 font-semibold text-sm sm:text-base" style={{ color: "var(--text-primary)" }}>
+                    {category.name}
+                  </h3>
+                  <p className="mt-1 text-xs sm:text-sm" style={{ color: "var(--text-muted)" }}>
+                    {category.blogCount || category.count || 0} blogs
+                  </p>
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
   );
-};
-
-export default PopularCategories;
+}

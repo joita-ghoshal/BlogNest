@@ -1,73 +1,143 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { HiCheck, HiX, HiTrash } from 'react-icons/hi';
 import { Helmet } from 'react-helmet-async';
-import adminService from '../../services/adminService';
-import AdminTable from '../../components/admin/AdminTable';
-import ConfirmModal from '../../components/common/ConfirmModal';
-import Loading from '../../components/common/Loading';
-import { formatDate } from '../../utils/helpers';
 import toast from 'react-hot-toast';
+import adminService from '../../services/adminService';
+import { formatDate } from '../../utils/helpers';
+import AdminTable from '../../components/admin/AdminTable';
+import LoadingSkeleton from '../../components/common/LoadingSkeleton';
 
 const ManageBlogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
 
-  useEffect(() => { fetchBlogs(); }, []);
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res = await adminService.getAllBlogs();
+        setBlogs(res.data?.blogs || res.blogs || []);
+      } catch {
+        toast.error('Failed to fetch blogs');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBlogs();
+  }, []);
 
-  const fetchBlogs = async () => {
+  const handlePublishToggle = async (id, isPublished) => {
     try {
-      const res = await adminService.getAllBlogs();
-      setBlogs(res.blogs || res.data || []);
-    } catch {} finally { setLoading(false); }
+      await adminService.updateBlog(id, { isPublished: !isPublished });
+      setBlogs((prev) =>
+        prev.map((b) => (b._id === id ? { ...b, isPublished: !isPublished } : b))
+      );
+      toast.success(isPublished ? 'Blog unpublished' : 'Blog published');
+    } catch {
+      toast.error('Failed to update blog');
+    }
   };
 
-  const handleToggleStatus = async (blog) => {
+  const handleDelete = async (id) => {
     try {
-      const newPublished = !blog.isPublished;
-      await adminService.updateBlog(blog._id, { isPublished: newPublished });
-      setBlogs((prev) => prev.map((b) => b._id === blog._id ? { ...b, isPublished: newPublished } : b));
-      toast.success(`Blog ${newPublished ? 'published' : 'unpublished'}`);
-    } catch { toast.error('Failed to update status'); }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await adminService.adminDeleteBlog(deleteId);
-      setBlogs((prev) => prev.filter((b) => b._id !== deleteId));
+      await adminService.adminDeleteBlog(id);
+      setBlogs((prev) => prev.filter((b) => b._id !== id));
       toast.success('Blog deleted');
-    } catch { toast.error('Failed to delete blog'); }
+      setDeleteId(null);
+    } catch {
+      toast.error('Failed to delete blog');
+    }
   };
 
-  const columns = [
-    { key: 'title', label: 'Title', render: (row) => (
-      <Link to={`/blogs/${row.slug || row._id}`} className="text-sm font-medium hover:text-[#00D4D8] transition-colors line-clamp-1 max-w-[200px] sm:max-w-none" style={{ color: 'var(--text-primary)' }}>{row.title}</Link>
-    )},
-    { key: 'author', label: 'Author', render: (row) => <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{row.author?.name || 'Unknown'}</span> },
-    { key: 'status', label: 'Status', render: (row) => (
-      <span className={`px-2 py-1 text-xs rounded-full font-medium whitespace-nowrap ${row.isPublished ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'}`}>
-        {row.isPublished ? 'Published' : 'Draft'}
-      </span>
-    )},
-    { key: 'createdAt', label: 'Date', render: (row) => <span className="text-xs sm:text-sm whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>{formatDate(row.createdAt)}</span> },
-    { key: 'actions', label: 'Actions', render: (row) => (
-      <div className="flex gap-1.5 sm:gap-2 flex-wrap">
-        <button onClick={() => handleToggleStatus(row)} className="px-2 sm:px-3 py-1 text-xs font-medium rounded-lg whitespace-nowrap" style={{ backgroundColor: row.isPublished ? '#FEF3C7' : '#D1FAE5', color: row.isPublished ? '#92400E' : '#065F46' }}>
-          {row.isPublished ? 'Unpublish' : 'Publish'}
-        </button>
-        <button onClick={() => setDeleteId(row._id)} className="px-2 sm:px-3 py-1 text-xs font-medium text-white rounded-lg" style={{ backgroundColor: '#EF4444' }}>Delete</button>
+  if (loading) {
+    return (
+      <div className="p-6 sm:p-8">
+        <LoadingSkeleton type="table" />
       </div>
-    )},
-  ];
+    );
+  }
+
+  const columns = ['Title', 'Author', 'Status', 'Date', 'Actions'];
+
+  const rows = blogs.map((blog) => ({
+    _id: blog._id,
+    cells: [
+      <span className="text-sm font-medium truncate block max-w-[250px]" style={{ color: 'var(--text-primary)' }}>{blog.title}</span>,
+      <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{blog.author?.name || 'Unknown'}</span>,
+      <span
+        className="py-0.5 px-2 text-xs font-medium rounded-md"
+        style={{
+          backgroundColor: blog.isPublished ? 'rgba(0,212,216,0.1)' : 'rgba(251,191,36,0.1)',
+          color: blog.isPublished ? '#00D4D8' : '#FBBF24',
+        }}
+      >
+        {blog.isPublished ? 'Published' : 'Draft'}
+      </span>,
+      <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(blog.createdAt)}</span>,
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => handlePublishToggle(blog._id, blog.isPublished)}
+          className="p-2 rounded-lg transition-colors"
+          style={{ color: blog.isPublished ? '#FBBF24' : '#00D4D8' }}
+          title={blog.isPublished ? 'Unpublish' : 'Publish'}
+        >
+          {blog.isPublished ? <HiX className="w-4 h-4" /> : <HiCheck className="w-4 h-4" />}
+        </button>
+        <button
+          onClick={() => setDeleteId(blog._id)}
+          className="p-2 rounded-lg transition-colors"
+          style={{ color: '#EF4444' }}
+          title="Delete"
+        >
+          <HiTrash className="w-4 h-4" />
+        </button>
+      </div>,
+    ],
+  }));
 
   return (
     <>
-      <Helmet><title>Manage Blogs - Admin - BlogNest</title></Helmet>
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8" style={{ color: 'var(--text-primary)' }}>Manage Blogs</h1>
-        {loading ? <Loading /> : <AdminTable columns={columns} data={blogs} />}
+      <Helmet>
+        <title>Manage Blogs - Admin - BlogNest</title>
+      </Helmet>
+
+      <div className="p-6 sm:p-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>
+            Manage Blogs
+          </h1>
+
+          <div className="rounded-2xl p-6 sm:p-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+            <AdminTable columns={columns} rows={rows} />
+          </div>
+        </motion.div>
+
+        {deleteId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+            onClick={() => setDeleteId(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              className="rounded-2xl p-6 sm:p-8 max-w-md w-full space-y-5"
+              style={{ backgroundColor: 'var(--bg-secondary)' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-center" style={{ color: 'var(--text-primary)' }}>Delete Blog?</h3>
+              <p className="text-center" style={{ color: 'var(--text-secondary)' }}>This action cannot be undone.</p>
+              <div className="flex gap-4">
+                <button onClick={() => setDeleteId(null)} className="flex-1 py-3 px-6 text-base font-medium rounded-xl border" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>Cancel</button>
+                <button onClick={() => handleDelete(deleteId)} className="flex-1 py-3 px-6 text-base font-semibold rounded-xl" style={{ backgroundColor: '#EF4444', color: '#FFF' }}>Delete</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </div>
-      <ConfirmModal isOpen={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete} title="Delete Blog" message="Are you sure you want to delete this blog?" />
     </>
   );
 };

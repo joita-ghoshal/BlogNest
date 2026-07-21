@@ -1,82 +1,62 @@
-import { useState, useRef } from 'react';
+import React, { useCallback } from 'react';
 import { HiPhotograph, HiX } from 'react-icons/hi';
 
-const ImageUpload = ({ value, onChange, accept = 'image/*' }) => {
-  const [preview, setPreview] = useState(value || null);
-  const [dragging, setDragging] = useState(false);
-  const inputRef = useRef(null);
+const ImageUpload = ({ file, previewUrl, onUpload, onRemove, accept = 'image/*', isAvatar }) => {
+  const handleDrop = useCallback(
+    (e) => {
+      e.preventDefault();
+      const droppedFile = e.dataTransfer.files[0];
+      if (droppedFile && droppedFile.type.startsWith('image/')) {
+        onUpload(droppedFile, URL.createObjectURL(droppedFile));
+      }
+    },
+    [onUpload]
+  );
 
-  const handleFile = (file) => {
-    if (!file || !file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(reader.result);
-      onChange(file);
-    };
-    reader.readAsDataURL(file);
+  const handleChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      onUpload(selectedFile, URL.createObjectURL(selectedFile));
+    }
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragging(false);
-    const file = e.dataTransfer.files[0];
-    handleFile(file);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setDragging(true);
-  };
-
-  const handleDragLeave = () => setDragging(false);
-
-  const handleRemove = () => {
-    setPreview(null);
-    onChange(null);
-    if (inputRef.current) inputRef.current.value = '';
-  };
-
-  if (preview) {
-    return (
-      <div className="relative rounded-xl overflow-hidden">
-        <img src={preview} alt="Preview" className="w-full h-48 object-cover" />
-        <button
-          type="button"
-          onClick={handleRemove}
-          className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
-        >
-          <HiX size={16} />
-        </button>
-      </div>
-    );
-  }
+  const handleDragOver = (e) => e.preventDefault();
 
   return (
-    <div
-      onClick={() => inputRef.current?.click()}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      className={`flex flex-col items-center justify-center py-12 rounded-xl border-2 border-dashed cursor-pointer transition-all ${
-        dragging ? 'border-[#00D4D8]' : ''
-      }`}
-      style={{
-        borderColor: dragging ? '#00D4D8' : 'var(--border)',
-        backgroundColor: 'var(--bg-secondary)',
-      }}
-    >
-      <HiPhotograph size={40} style={{ color: 'var(--text-muted)' }} />
-      <p className="mt-2 text-sm" style={{ color: 'var(--text-muted)' }}>
-        Click or drag image to upload
-      </p>
-      <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-        PNG, JPG, GIF up to 5MB
-      </p>
+    <div>
+      {previewUrl ? (
+        <div className={`relative ${isAvatar ? 'w-28 h-28 rounded-full mx-auto' : 'w-full h-48 rounded-xl overflow-hidden'}`}>
+          <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+          <button
+            type="button"
+            onClick={onRemove}
+            className="absolute top-2 right-2 p-1.5 rounded-full transition-colors"
+            style={{ backgroundColor: 'rgba(0,0,0,0.6)', color: '#FFF' }}
+          >
+            <HiX className="w-4 h-4" />
+          </button>
+        </div>
+      ) : (
+        <div
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
+            isAvatar ? 'w-28 h-28 rounded-full mx-auto' : 'w-full py-12'
+          }`}
+          style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-tertiary)' }}
+          onClick={() => document.getElementById('image-upload-input')?.click()}
+        >
+          <HiPhotograph className="w-8 h-8 mb-2" style={{ color: 'var(--text-muted)' }} />
+          <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+            {isAvatar ? 'Upload photo' : 'Drop an image or click to upload'}
+          </p>
+        </div>
+      )}
       <input
-        ref={inputRef}
+        id="image-upload-input"
         type="file"
         accept={accept}
-        onChange={(e) => handleFile(e.target.files[0])}
+        onChange={handleChange}
         className="hidden"
       />
     </div>

@@ -22,7 +22,7 @@ const BlogCard = ({ blog, index = 0 }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.4 }}
       whileHover={{ y: -4 }}
-      className="rounded-2xl overflow-hidden transition-shadow hover:shadow-lg"
+      className="rounded-2xl overflow-hidden transition-shadow hover:shadow-xl"
       style={{
         backgroundColor: 'var(--bg-secondary)',
         border: '1px solid var(--border)',
@@ -33,18 +33,28 @@ const BlogCard = ({ blog, index = 0 }) => {
           {image ? (
             <>
               {!imageLoaded && (
-                <div className="absolute inset-0 skeleton-pulse" style={{ backgroundColor: 'var(--bg-tertiary)' }} />
+                <div
+                  className="absolute inset-0 skeleton-pulse"
+                  style={{ backgroundColor: 'var(--bg-tertiary)' }}
+                />
               )}
               <img
                 src={image}
                 alt={title}
-                className={`w-full h-full object-cover transition-transform duration-500 hover:scale-105 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`w-full h-full object-cover transition-transform duration-500 hover:scale-105 ${
+                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
                 onLoad={() => setImageLoaded(true)}
               />
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
-              <span className="text-4xl" style={{ color: 'var(--text-muted)' }}>📝</span>
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{ backgroundColor: 'var(--bg-tertiary)' }}
+            >
+              <span className="text-5xl" style={{ color: 'var(--text-muted)' }}>
+                📝
+              </span>
             </div>
           )}
           {category.name && (
@@ -57,25 +67,40 @@ const BlogCard = ({ blog, index = 0 }) => {
 
       <div className="p-5">
         <Link to={`/blogs/${blog.slug || blog._id}`}>
-          <h3 className="text-lg font-semibold mb-2 line-clamp-2 hover:text-[#00D4D8] transition-colors" style={{ color: 'var(--text-primary)' }}>
+          <h3
+            className="text-lg font-semibold mb-2 line-clamp-2 hover:text-[#00D4D8] transition-colors"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {title}
           </h3>
         </Link>
 
         {excerpt && (
-          <p className="text-sm mb-4 line-clamp-2" style={{ color: 'var(--text-muted)' }}>
+          <p
+            className="text-sm mb-4 line-clamp-2 leading-relaxed"
+            style={{ color: 'var(--text-muted)' }}
+          >
             {excerpt}
           </p>
         )}
 
         <div className="flex items-center justify-between">
-          <Link to={`/author/${author._id}`} className="flex items-center gap-2">
+          <Link
+            to={`/author/${author._id}`}
+            className="flex items-center gap-2.5 min-w-0"
+          >
             <Avatar user={author} size="sm" />
-            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+            <span
+              className="text-sm font-medium truncate"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               {author.name || 'Unknown'}
             </span>
           </Link>
-          <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
+          <div
+            className="flex items-center gap-3 text-xs shrink-0"
+            style={{ color: 'var(--text-muted)' }}
+          >
             <span className="flex items-center gap-1">
               <HiClock size={14} />
               {estimateReadTime(blog.content)}
@@ -92,7 +117,10 @@ const BlogCard = ({ blog, index = 0 }) => {
         </div>
 
         {blog.createdAt && (
-          <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>
+          <p
+            className="text-xs mt-3"
+            style={{ color: 'var(--text-muted)' }}
+          >
             {formatDate(blog.createdAt)}
           </p>
         )}

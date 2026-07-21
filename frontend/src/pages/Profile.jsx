@@ -1,62 +1,118 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import userService from '../services/userService';
 import blogService from '../services/blogService';
-import Avatar from '../components/common/Avatar';
-import BlogCard from '../components/common/BlogCard';
-import Loading from '../components/common/Loading';
-import EmptyState from '../components/common/EmptyState';
+import useAuth from '../hooks/useAuth';
 import { formatDate } from '../utils/helpers';
+import BlogCard from '../components/common/BlogCard';
+import LoadingSkeleton from '../components/common/LoadingSkeleton';
 
 const Profile = () => {
   const { id } = useParams();
-  const [user, setUser] = useState(null);
+  const { user: currentUser } = useAuth();
+  const [profile, setProfile] = useState(null);
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchProfile = async () => {
       try {
-        const profileRes = await userService.getProfile(id);
-        const profileData = profileRes.data || profileRes;
-        setUser(profileData.user || profileData);
-        setBlogs(profileData.blogs || []);
-      } catch {
+        setLoading(true);
+        const res = await userService.getProfile(id);
+        const userData = res.data?.user || res.user || res.data || res;
+        setProfile(userData);
+
+        const blogsRes = await blogService.getBlogs({ author: id, isPublished: true });
+        setBlogs(blogsRes.data?.blogs || blogsRes.blogs || []);
+      } catch (err) {
+        console.error('Failed to load profile:', err);
       } finally {
         setLoading(false);
       }
     };
-    fetch();
+    fetchProfile();
   }, [id]);
 
-  if (loading) return <Loading text="Loading profile..." />;
-  if (!user) return <EmptyState icon="👤" title="User not found" />;
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <LoadingSkeleton type="profile" />
+      </div>
+    );
+  }
+
+  if (!profile) return null;
+
+  const isOwnProfile = currentUser?._id === profile._id;
 
   return (
     <>
-      <Helmet><title>{user.name} - BlogNest</title></Helmet>
-      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-10">
-        <div className="rounded-2xl p-6 sm:p-8 mb-10" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-            <Avatar user={user} size="xl" />
-            <div className="text-center sm:text-left flex-1 min-w-0">
-              <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{user.name}</h1>
-              <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>{user.email}</p>
-              {user.bio && <p className="text-sm mt-3" style={{ color: 'var(--text-secondary)' }}>{user.bio}</p>}
-              <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>Joined {formatDate(user.createdAt)}</p>
+      <Helmet>
+        <title>{profile.name} - BlogNest</title>
+      </Helmet>
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="rounded-2xl p-6 sm:p-8 mb-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden flex-shrink-0" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+                {profile.avatar ? (
+                  <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-3xl font-bold" style={{ color: '#00D4D8' }}>
+                    {profile.name?.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+
+              <div className="text-center sm:text-left flex-1">
+                <h1 className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                  {profile.name}
+                </h1>
+                <p className="text-sm mb-2" style={{ color: 'var(--text-muted)' }}>{profile.email}</p>
+                {profile.bio && (
+                  <p className="text-base mb-3" style={{ color: 'var(--text-secondary)' }}>{profile.bio}</p>
+                )}
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  Joined {formatDate(profile.createdAt)}
+                </p>
+              </div>
+
+              {isOwnProfile && (
+                <Link
+                  to="/edit-profile"
+                  className="py-3 px-6 text-base font-medium rounded-xl border transition-colors"
+                  style={{ borderColor: 'var(--border)', color: 'var(--text-primary)', backgroundColor: 'var(--bg-tertiary)' }}
+                >
+                  Edit Profile
+                </Link>
+              )}
             </div>
           </div>
-        </div>
 
-        <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Published Blogs</h2>
-        {blogs.length === 0 ? (
-          <EmptyState icon="📝" title="No blogs yet" description="This user hasn't published any blogs." />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {blogs.map((blog, i) => <BlogCard key={blog._id} blog={blog} index={i} />)}
-          </div>
-        )}
+          <h2 className="text-2xl sm:text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+            Published Blogs
+          </h2>
+
+          {blogs.length === 0 ? (
+            <p className="text-base py-8 text-center" style={{ color: 'var(--text-muted)' }}>No blogs published yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {blogs.map((blog, index) => (
+                <motion.div
+                  key={blog._id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <BlogCard blog={blog} />
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </motion.div>
       </div>
     </>
   );

@@ -1,54 +1,77 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import blogService from '../../services/blogService';
-import BlogCard from '../common/BlogCard';
-import LoadingSkeleton from '../common/LoadingSkeleton';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import blogService from "../../services/blogService";
+import BlogCard from "../common/BlogCard";
 
-const FeaturedBlogs = () => {
+export default function FeaturedBlogs() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchBlogs = async () => {
       try {
-        const res = await blogService.getFeaturedBlogs();
-        setBlogs(res.blogs || res.data || res || []);
-      } catch {
-        setBlogs([]);
+        const data = await blogService.getFeaturedBlogs();
+        setBlogs(data.blogs || data || []);
+      } catch (err) {
+        console.error("Failed to fetch featured blogs:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetch();
+    fetchBlogs();
   }, []);
 
-  if (loading) return <LoadingSkeleton type="card" count={3} />;
+  if (loading) {
+    return (
+      <section className="py-12 sm:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 w-48 rounded-lg" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-72 rounded-2xl" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (!blogs.length) return null;
 
   return (
-    <section className="py-16">
+    <section className="py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-10"
+          transition={{ duration: 0.5 }}
+          className="mb-8"
         >
-          <h2 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "var(--text-primary)" }}>
             Featured Blogs
           </h2>
-          <p className="mt-2" style={{ color: 'var(--text-muted)' }}>
-            Handpicked stories just for you
+          <p className="mt-2 text-base" style={{ color: "var(--text-secondary)" }}>
+            Handpicked stories you don&apos;t want to miss
           </p>
         </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogs.slice(0, 6).map((blog, i) => (
-            <BlogCard key={blog._id} blog={blog} index={i} />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {blogs.map((blog, index) => (
+            <motion.div
+              key={blog._id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <BlogCard blog={blog} />
+            </motion.div>
           ))}
         </div>
       </div>
     </section>
   );
-};
-
-export default FeaturedBlogs;
+}

@@ -1,4 +1,3 @@
-import { useState, useCallback, useEffect } from 'react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -14,24 +13,17 @@ const modules = {
 };
 
 const formats = [
-  'header',
-  'bold', 'italic', 'underline', 'strike',
-  'list', 'bullet',
-  'blockquote', 'code-block',
-  'link', 'image',
+  'header', 'bold', 'italic', 'underline', 'strike',
+  'list', 'bullet', 'blockquote', 'code-block', 'link', 'image',
 ];
 
 const RichTextEditor = ({ value, onChange, placeholder }) => {
-  const handleChange = useCallback((content) => {
-    onChange(content);
-  }, [onChange]);
-
   return (
-    <div className="quill-editor rounded-xl overflow-hidden">
+    <div className="quill-editor">
       <ReactQuill
         theme="snow"
         value={value || ''}
-        onChange={handleChange}
+        onChange={onChange}
         modules={modules}
         formats={formats}
         placeholder={placeholder || 'Write your blog content...'}

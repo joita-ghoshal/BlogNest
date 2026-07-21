@@ -1,185 +1,160 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import useAuth from '../../hooks/useAuth';
-import commentService from '../../services/commentService';
-import CommentItem from './CommentItem';
-import Avatar from '../common/Avatar';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import useAuth from "../../hooks/useAuth";
+import commentService from "../../services/commentService";
+import { timeAgo } from "../../utils/helpers";
+import CommentItem from "./CommentItem";
+import { Link } from "react-router-dom";
 
-const CommentSection = ({ blogId }) => {
+export default function CommentSection({ blogId }) {
   const { user } = useAuth();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [text, setText] = useState('');
+  const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [replyTo, setReplyTo] = useState(null);
 
   useEffect(() => {
-    fetchComments();
+    const fetchComments = async () => {
+      try {
+        const data = await commentService.getComments(blogId);
+        setComments(data.comments || data || []);
+      } catch (err) {
+        console.error("Failed to fetch comments:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (blogId) fetchComments();
   }, [blogId]);
-
-  const fetchComments = async () => {
-    try {
-      const res = await commentService.getComments(blogId);
-      setComments(res.comments || res.data || res || []);
-    } catch {
-      setComments([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!text.trim()) return;
+    if (!content.trim() || submitting) return;
     setSubmitting(true);
     try {
-      const data = { blogId: blogId, content: text, parentCommentId: replyTo || undefined };
-      const res = await commentService.createComment(data);
-      const newComment = res.comment || res.data || res;
-      if (replyTo) {
-        setComments((prev) =>
-          prev.map((c) =>
-            c._id === replyTo
-              ? { ...c, replies: [...(c.replies || []), newComment] }
-              : c
-          )
-        );
-      } else {
-        setComments((prev) => [newComment, ...prev]);
-      }
-      setText('');
-      setReplyTo(null);
-      toast.success('Comment added!');
+      const data = await commentService.createComment({ blogId, content: content.trim() });
+      const newComment = data.comment || data;
+      setComments((prev) => [{ ...newComment, author: user }, ...prev]);
+      setContent("");
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to add comment');
+      console.error("Failed to post comment:", err);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDelete = async (commentId) => {
-    try {
-      await commentService.deleteComment(commentId);
-      setComments((prev) =>
-        prev
-          .filter((c) => c._id !== commentId)
-          .map((c) => ({
-            ...c,
-            replies: (c.replies || []).filter((r) => r._id !== commentId),
-          }))
-      );
-      toast.success('Comment deleted');
-    } catch {
-      toast.error('Failed to delete comment');
-    }
+  const handleDelete = (commentId) => {
+    setComments((prev) => prev.filter((c) => c._id !== commentId));
   };
 
-  const handleLike = async (commentId) => {
-    try {
-      const res = await commentService.toggleLike(commentId);
-      const data = res.data || res;
-      setComments((prev) =>
-        prev.map((c) => {
-          if (c._id === commentId) return { ...c, likes: data.likes || [] };
-          return {
-            ...c,
-            replies: (c.replies || []).map((r) => (r._id === commentId ? { ...r, likes: data.likes || [] } : r)),
-          };
-        })
-      );
-    } catch {
-      toast.error('Failed to like comment');
-    }
+  const handleReply = (parentId, reply) => {
+    setComments((prev) =>
+      prev.map((c) =>
+        c._id === parentId
+          ? { ...c, replies: [...(c.replies || []), { ...reply, author: user }] }
+          : c
+      )
+    );
   };
 
   return (
-    <div className="mt-10">
-      <h3 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-        Comments ({comments.length})
-      </h3>
+    <section className="py-10 sm:py-12 border-t" style={{ borderColor: "var(--border)" }}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-xl sm:text-2xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>
+          Comments ({comments.length})
+        </h2>
 
-      {user ? (
-        <form onSubmit={handleSubmit} className="mb-8">
-          {replyTo && (
-            <div className="flex items-center gap-2 mb-2 text-sm" style={{ color: '#00D4D8' }}>
-              Replying to comment
-              <button type="button" onClick={() => setReplyTo(null)} className="underline" style={{ color: 'var(--text-muted)' }}>Cancel</button>
-            </div>
-          )}
-          <div className="flex gap-3">
-            <div className="hidden sm:block">
-              <Avatar user={user} size="sm" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="sm:hidden mb-2">
-                <Avatar user={user} size="sm" />
-              </div>
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Write a comment..."
-                rows={3}
-                className="w-full px-4 py-3 rounded-xl border text-sm resize-none outline-none focus:ring-2 focus:ring-[#00D4D8]/50 transition-all"
-                style={{
-                  backgroundColor: 'var(--bg-secondary)',
-                  borderColor: 'var(--border)',
-                  color: 'var(--text-primary)',
-                }}
-              />
-              <div className="flex justify-end mt-2">
-                <button
-                  type="submit"
-                  disabled={!text.trim() || submitting}
-                  className="px-5 py-2 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50"
-                  style={{ backgroundColor: '#00D4D8' }}
+        {user ? (
+          <form onSubmit={handleSubmit} className="mb-8">
+            <div className="flex gap-3">
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                />
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-[#00D4D8] flex-shrink-0"
+                  style={{ backgroundColor: "var(--bg-tertiary)" }}
                 >
-                  {submitting ? 'Posting...' : 'Post Comment'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
-      ) : (
-        <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
-          Please <a href="/login" className="text-[#00D4D8] underline">login</a> to leave a comment.
-        </p>
-      )}
-
-      {loading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-              <div className="flex gap-3">
-                <div className="w-10 h-10 rounded-full skeleton-pulse" style={{ backgroundColor: 'var(--bg-tertiary)' }} />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 w-24 rounded skeleton-pulse" style={{ backgroundColor: 'var(--bg-tertiary)' }} />
-                  <div className="h-3 w-full rounded skeleton-pulse" style={{ backgroundColor: 'var(--bg-tertiary)' }} />
+                  {user.name?.charAt(0)?.toUpperCase()}
+                </div>
+              )}
+              <div className="flex-1">
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Write a comment..."
+                  rows={3}
+                  className="w-full py-3 px-4 text-base rounded-xl border outline-none transition-colors resize-none"
+                  style={{
+                    backgroundColor: "var(--bg-primary)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-primary)",
+                  }}
+                />
+                <div className="mt-2 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={!content.trim() || submitting}
+                    className="py-2 px-5 text-sm font-medium rounded-xl transition-colors disabled:opacity-50 bg-[#00D4D8] text-gray-900 hover:bg-[#00BFC2]"
+                  >
+                    {submitting ? "Posting..." : "Post Comment"}
+                  </button>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      ) : comments.length === 0 ? (
-        <p className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
-          No comments yet. Be the first to comment!
-        </p>
-      ) : (
-        <div className="space-y-4">
-          {comments.map((comment) => (
-            <CommentItem
-              key={comment._id}
-              comment={comment}
-              currentUser={user}
-              onDelete={handleDelete}
-              onLike={handleLike}
-              onReply={(id) => { setReplyTo(id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+          </form>
+        ) : (
+          <div
+            className="mb-8 p-5 rounded-2xl text-center"
+            style={{ backgroundColor: "var(--bg-secondary)", border: "1px solid var(--border)" }}
+          >
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+              Please{" "}
+              <Link to="/login" className="text-[#00D4D8] font-medium hover:underline">
+                sign in
+              </Link>{" "}
+              to leave a comment.
+            </p>
+          </div>
+        )}
 
-export default CommentSection;
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse p-4 rounded-2xl" style={{ backgroundColor: "var(--bg-secondary)" }}>
+                <div className="flex gap-3">
+                  <div className="w-10 h-10 rounded-full" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-24 rounded" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+                    <div className="h-3 w-full rounded" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <motion.div className="space-y-4" layout>
+            {comments.map((comment) => (
+              <CommentItem
+                key={comment._id}
+                comment={comment}
+                currentUserId={user?._id}
+                onDelete={handleDelete}
+                onReply={handleReply}
+                blogId={blogId}
+              />
+            ))}
+            {!comments.length && (
+              <p className="text-center py-8 text-sm" style={{ color: "var(--text-muted)" }}>
+                No comments yet. Be the first to share your thoughts!
+              </p>
+            )}
+          </motion.div>
+        )}
+      </div>
+    </section>
+  );
+}

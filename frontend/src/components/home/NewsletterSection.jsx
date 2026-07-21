@@ -1,63 +1,60 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { HiMail } from 'react-icons/hi';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { HiMail } from "react-icons/hi";
 
-const NewsletterSection = () => {
-  const [email, setEmail] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+export default function NewsletterSection() {
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
-  const handleSubscribe = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email) return;
-    setSubmitting(true);
-    setTimeout(() => {
-      toast.success('Subscribed successfully!');
-      setEmail('');
-      setSubmitting(false);
-    }, 1000);
+    if (email.trim()) {
+      setSubmitted(true);
+      setEmail("");
+      setTimeout(() => setSubmitted(false), 3000);
+    }
   };
 
   return (
-    <section className="py-16">
+    <section className="py-14 sm:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative rounded-3xl overflow-hidden p-10 md:p-16 text-center"
-          style={{
-            background: 'linear-gradient(135deg, #00D4D8 0%, #00B8BC 100%)',
-          }}
+          transition={{ duration: 0.5 }}
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#00D4D8] to-[#00A8B0] p-8 sm:p-12 lg:p-16"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl opacity-20 bg-white" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full blur-3xl opacity-20 bg-white" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
 
-          <div className="relative">
-            <HiMail size={40} className="mx-auto mb-4 text-white/80" />
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Stay Updated
+          <div className="relative max-w-2xl mx-auto text-center">
+            <HiMail className="text-4xl text-white/90 mx-auto mb-4" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">
+              Stay in the Loop
             </h2>
-            <p className="text-white/80 mb-8 max-w-md mx-auto">
-              Get the latest blogs and updates delivered straight to your inbox.
+            <p className="mt-3 text-base text-white/80">
+              Get the latest articles and insights delivered straight to your
+              inbox. No spam, unsubscribe anytime.
             </p>
-            <form onSubmit={handleSubscribe} className="flex gap-2 max-w-md mx-auto">
+
+            <form
+              onSubmit={handleSubmit}
+              className="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+            >
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="flex-1 px-5 py-3 rounded-xl text-sm outline-none min-w-0"
-                style={{ backgroundColor: '#ffffff', color: '#111827', border: 'none' }}
                 required
+                className="flex-1 py-3 px-5 text-base rounded-xl border-0 outline-none text-gray-900 placeholder-gray-500"
               />
               <button
                 type="submit"
-                disabled={submitting}
-                className="px-6 py-3 text-sm font-semibold rounded-xl transition-colors disabled:opacity-70"
-                style={{ backgroundColor: '#111827', color: '#fff' }}
+                className="py-3 px-6 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors whitespace-nowrap"
               >
-                {submitting ? 'Subscribing...' : 'Subscribe'}
+                {submitted ? "Subscribed!" : "Subscribe"}
               </button>
             </form>
           </div>
@@ -65,6 +62,4 @@ const NewsletterSection = () => {
       </div>
     </section>
   );
-};
-
-export default NewsletterSection;
+}

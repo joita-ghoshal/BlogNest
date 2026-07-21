@@ -1,64 +1,98 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import blogService from '../../services/blogService';
-import BlogCard from '../common/BlogCard';
-import LoadingSkeleton from '../common/LoadingSkeleton';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { HiArrowRight } from "react-icons/hi";
+import blogService from "../../services/blogService";
+import BlogCard from "../common/BlogCard";
 
-const LatestBlogs = () => {
+export default function LatestBlogs() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchBlogs = async () => {
       try {
-        const res = await blogService.getLatestBlogs();
-        setBlogs(res.blogs || res.data || res || []);
-      } catch {
-        setBlogs([]);
+        const data = await blogService.getLatestBlogs();
+        setBlogs(data.blogs || data || []);
+      } catch (err) {
+        console.error("Failed to fetch latest blogs:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetch();
+    fetchBlogs();
   }, []);
 
-  if (loading) return <LoadingSkeleton type="card" count={3} />;
+  if (loading) {
+    return (
+      <section className="py-14 sm:py-20" style={{ backgroundColor: "var(--bg-secondary)" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 w-48 rounded-lg" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-72 rounded-2xl" style={{ backgroundColor: "var(--bg-tertiary)" }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (!blogs.length) return null;
 
   return (
-    <section className="py-16" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+    <section className="py-14 sm:py-20" style={{ backgroundColor: "var(--bg-secondary)" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-10"
+          transition={{ duration: 0.5 }}
+          className="flex items-end justify-between mb-8"
         >
           <div>
-            <h2 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "var(--text-primary)" }}>
               Latest Blogs
             </h2>
-            <p className="mt-2" style={{ color: 'var(--text-muted)' }}>
-              Fresh perspectives and new ideas
+            <p className="mt-2 text-base" style={{ color: "var(--text-secondary)" }}>
+              Fresh content published recently
             </p>
           </div>
           <Link
             to="/blogs"
-            className="text-sm font-medium hover:underline"
-            style={{ color: '#00D4D8' }}
+            className="hidden sm:flex items-center gap-1 text-[#00D4D8] font-medium hover:underline"
           >
             View All
+            <HiArrowRight className="text-lg" />
           </Link>
         </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogs.slice(0, 6).map((blog, i) => (
-            <BlogCard key={blog._id} blog={blog} index={i} />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {blogs.map((blog, index) => (
+            <motion.div
+              key={blog._id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <BlogCard blog={blog} />
+            </motion.div>
           ))}
+        </div>
+
+        <div className="mt-8 sm:hidden text-center">
+          <Link
+            to="/blogs"
+            className="inline-flex items-center gap-1 text-[#00D4D8] font-medium hover:underline"
+          >
+            View All
+            <HiArrowRight className="text-lg" />
+          </Link>
         </div>
       </div>
     </section>
   );
-};
-
-export default LatestBlogs;
+}

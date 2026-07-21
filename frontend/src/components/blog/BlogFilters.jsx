@@ -1,40 +1,53 @@
-import { SORT_OPTIONS } from '../../utils/constants';
+import { HiOutlineFilter } from "react-icons/hi";
 
-const BlogFilters = ({ categories = [], selectedCategory, onCategoryChange, sortBy, onSortChange, selectedTags = [], onTagToggle }) => {
+export default function BlogFilters({ categories = [], filters, onFilterChange }) {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 mb-6">
-      <select
-        value={selectedCategory || ''}
-        onChange={(e) => onCategoryChange(e.target.value)}
-        className="w-full sm:w-auto px-4 py-2 rounded-xl text-sm border outline-none focus:ring-2 focus:ring-[#00D4D8]/50"
-        style={{
-          backgroundColor: 'var(--bg-secondary)',
-          borderColor: 'var(--border)',
-          color: 'var(--text-primary)',
-        }}
-      >
-        <option value="">All Categories</option>
-        {categories.map((cat) => (
-          <option key={cat._id} value={cat.slug}>{cat.name}</option>
-        ))}
-      </select>
+    <div className="flex flex-col sm:flex-row gap-3">
+      <div className="relative flex-1">
+        <select
+          value={filters.category || ""}
+          onChange={(e) => onFilterChange({ ...filters, category: e.target.value })}
+          className="w-full py-3 px-4 pr-10 text-base rounded-xl border outline-none appearance-none transition-colors cursor-pointer"
+          style={{
+            backgroundColor: "var(--bg-primary)",
+            borderColor: "var(--border)",
+            color: "var(--text-primary)",
+          }}
+        >
+          <option value="">All Categories</option>
+          {categories.map((cat) => (
+            <option key={cat._id} value={cat.slug || cat._id}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
+        <HiOutlineFilter
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-base pointer-events-none"
+          style={{ color: "var(--text-muted)" }}
+        />
+      </div>
 
-      <select
-        value={sortBy || 'latest'}
-        onChange={(e) => onSortChange(e.target.value)}
-        className="w-full sm:w-auto px-4 py-2 rounded-xl text-sm border outline-none focus:ring-2 focus:ring-[#00D4D8]/50"
-        style={{
-          backgroundColor: 'var(--bg-secondary)',
-          borderColor: 'var(--border)',
-          color: 'var(--text-primary)',
-        }}
-      >
-        {SORT_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
+      <div className="relative flex-1 sm:flex-initial sm:w-48">
+        <select
+          value={filters.sort || "latest"}
+          onChange={(e) => onFilterChange({ ...filters, sort: e.target.value })}
+          className="w-full py-3 px-4 pr-10 text-base rounded-xl border outline-none appearance-none transition-colors cursor-pointer"
+          style={{
+            backgroundColor: "var(--bg-primary)",
+            borderColor: "var(--border)",
+            color: "var(--text-primary)",
+          }}
+        >
+          <option value="latest">Latest</option>
+          <option value="oldest">Oldest</option>
+          <option value="popular">Most Popular</option>
+          <option value="discussed">Most Discussed</option>
+        </select>
+        <HiOutlineFilter
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-base pointer-events-none"
+          style={{ color: "var(--text-muted)" }}
+        />
+      </div>
     </div>
   );
-};
-
-export default BlogFilters;
+}
