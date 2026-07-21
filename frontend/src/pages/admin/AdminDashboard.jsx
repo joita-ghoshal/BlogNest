@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiUsers, HiDocumentText, HiCollection, HiChatAlt2, HiArrowRight } from 'react-icons/hi';
 import { Helmet } from 'react-helmet-async';
 import adminService from '../../services/adminService';
-import { formatDate } from '../../utils/helpers';
-import StatsCard from '../../components/admin/StatsCard';
 import LoadingSkeleton from '../../components/common/LoadingSkeleton';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [recentBlogs, setRecentBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +20,7 @@ const AdminDashboard = () => {
         setStats(statsRes.data || statsRes || {});
 
         const blogsRes = await adminService.getAllBlogs({ limit: 5, sort: '-createdAt' });
-        setRecentBlogs(blogsRes.data?.blogs || blogsRes.blogs || []);
+        setRecentBlogs(blogsRes.data?.blogs || blogsRes.blogs || blogsRes.data || []);
       } catch (err) {
         console.error('Admin dashboard fetch failed:', err);
       } finally {
@@ -40,10 +39,10 @@ const AdminDashboard = () => {
   }
 
   const statCards = [
-    { icon: HiUsers, label: 'Total Users', value: stats?.totalUsers || stats?.users || 0, color: '#3B82F6' },
-    { icon: HiDocumentText, label: 'Total Blogs', value: stats?.totalBlogs || stats?.blogs || 0, color: '#00D4D8' },
-    { icon: HiCollection, label: 'Categories', value: stats?.totalCategories || stats?.categories || 0, color: '#8B5CF6' },
-    { icon: HiChatAlt2, label: 'Comments', value: stats?.totalComments || stats?.comments || 0, color: '#F59E0B' },
+    { icon: HiUsers, label: 'Total Users', value: stats?.totalUsers || 0, color: '#3B82F6', to: '/admin/users' },
+    { icon: HiDocumentText, label: 'Total Blogs', value: stats?.totalBlogs || 0, color: '#00D4D8', to: '/admin/blogs' },
+    { icon: HiCollection, label: 'Categories', value: stats?.totalCategories || 0, color: '#8B5CF6', to: '/admin/categories' },
+    { icon: HiChatAlt2, label: 'Comments', value: stats?.totalComments || 0, color: '#F59E0B', to: '/admin/comments' },
   ];
 
   return (
@@ -66,7 +65,22 @@ const AdminDashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <StatsCard icon={card.icon} label={card.label} value={card.value} color={card.color} />
+                <Link
+                  to={card.to}
+                  className="block rounded-2xl p-6 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 cursor-pointer group"
+                  style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)' }}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${card.color}15` }}>
+                      <card.icon className="w-6 h-6" style={{ color: card.color }} />
+                    </div>
+                    <HiArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--text-muted)' }} />
+                  </div>
+                  <p className="text-3xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                    {card.value.toLocaleString()}
+                  </p>
+                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{card.label}</p>
+                </Link>
               </motion.div>
             ))}
           </div>
@@ -102,7 +116,7 @@ const AdminDashboard = () => {
                           {blog.title}
                         </p>
                         <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                          by {blog.author?.name || 'Unknown'} &middot; {formatDate(blog.createdAt)}
+                          by {blog.author?.name || 'Unknown'}
                         </p>
                       </div>
                       <span
@@ -128,19 +142,19 @@ const AdminDashboard = () => {
               <div className="space-y-4">
                 <div className="flex justify-between py-3 border-b" style={{ borderColor: 'var(--border)' }}>
                   <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Published Blogs</span>
-                  <span className="text-sm font-medium" style={{ color: '#00D4D8' }}>{stats?.publishedBlogs || 0}</span>
+                  <span className="text-sm font-semibold" style={{ color: '#00D4D8' }}>{stats?.publishedBlogs || 0}</span>
                 </div>
                 <div className="flex justify-between py-3 border-b" style={{ borderColor: 'var(--border)' }}>
                   <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Draft Blogs</span>
-                  <span className="text-sm font-medium" style={{ color: '#FBBF24' }}>{stats?.draftBlogs || 0}</span>
+                  <span className="text-sm font-semibold" style={{ color: '#FBBF24' }}>{stats?.unpublishedBlogs || 0}</span>
                 </div>
                 <div className="flex justify-between py-3 border-b" style={{ borderColor: 'var(--border)' }}>
                   <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Total Views</span>
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{stats?.totalViews || 0}</span>
+                  <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{(stats?.totalViews || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between py-3">
                   <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Total Likes</span>
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{stats?.totalLikes || 0}</span>
+                  <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{(stats?.totalLikes || 0).toLocaleString()}</span>
                 </div>
               </div>
             </div>

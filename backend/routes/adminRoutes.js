@@ -4,6 +4,8 @@ const {
   getStats,
   getAllUsers,
   updateUserRole,
+  updateUser,
+  toggleUserActive,
   deleteUser,
   getAllBlogs,
   updateBlog,
@@ -21,6 +23,8 @@ router.get('/stats', getStats);
 
 router.get('/users', getAllUsers);
 router.put('/users/:id/role', updateUserRole);
+router.put('/users/:id', updateUser);
+router.patch('/users/:id/toggle-active', toggleUserActive);
 router.delete('/users/:id', deleteUser);
 
 router.get('/blogs', getAllBlogs);

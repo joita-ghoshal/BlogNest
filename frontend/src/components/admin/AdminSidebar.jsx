@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HiHome, HiUsers, HiDocumentText, HiCollection, HiChatAlt2, HiX, HiMenu } from 'react-icons/hi';
+import { HiHome, HiUsers, HiDocumentText, HiCollection, HiChatAlt2, HiX, HiMenu, HiOutlineLogout } from 'react-icons/hi';
+import useAuth from '../../hooks/useAuth';
 
 const navItems = [
   { path: '/admin', label: 'Dashboard', icon: HiHome, end: true },
@@ -12,8 +13,15 @@ const navItems = [
 ];
 
 const AdminSidebar = () => {
+  const { logout, loggingOut } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   const sidebarContent = (
     <div className="h-full flex flex-col py-6">
@@ -48,7 +56,16 @@ const AdminSidebar = () => {
         ))}
       </nav>
 
-      <div className="px-6 pt-6 border-t" style={{ borderColor: 'var(--border)' }}>
+      <div className="px-6 pt-6 border-t space-y-2" style={{ borderColor: 'var(--border)' }}>
+        <button
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="flex items-center gap-2 py-2 text-sm font-medium transition-colors w-full"
+          style={{ color: '#EF4444' }}
+        >
+          <HiOutlineLogout className="w-4 h-4" />
+          {loggingOut ? 'Logging out...' : 'Logout'}
+        </button>
         <NavLink
           to="/"
           className="block py-2 text-sm font-medium"

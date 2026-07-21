@@ -8,7 +8,7 @@ const slugify = require('../utils/slugify');
 
 exports.getStats = async (req, res, next) => {
   try {
-    const [totalUsers, totalBlogs, totalCategories, totalComments, publishedBlogs, unpublishedBlogs] =
+    const [totalUsers, totalBlogs, totalCategories, totalComments, publishedBlogs, unpublishedBlogs, viewsAndLikes] =
       await Promise.all([
         User.countDocuments(),
         Blog.countDocuments(),
@@ -16,13 +16,12 @@ exports.getStats = async (req, res, next) => {
         Comment.countDocuments(),
         Blog.countDocuments({ isPublished: true }),
         Blog.countDocuments({ isPublished: false }),
+        Blog.aggregate([
+          { $group: { _id: null, totalViews: { $sum: '$views' }, totalLikes: { $sum: { $size: '$likes' } } } },
+        ]),
       ]);
 
-    const recentUsers = await User.find().sort({ createdAt: -1 }).limit(5);
-    const recentBlogs = await Blog.find()
-      .populate('author', 'name')
-      .sort({ createdAt: -1 })
-      .limit(5);
+    const totals = viewsAndLikes[0] || { totalViews: 0, totalLikes: 0 };
 
     res.status(200).json({
       success: true,
@@ -33,8 +32,8 @@ exports.getStats = async (req, res, next) => {
         totalComments,
         publishedBlogs,
         unpublishedBlogs,
-        recentUsers,
-        recentBlogs,
+        totalViews: totals.totalViews,
+        totalLikes: totals.totalLikes,
       },
     });
   } catch (error) {
@@ -100,6 +99,49 @@ exports.updateUserRole = async (req, res, next) => {
       success: true,
       data: user,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateUser = async (req, res, next) => {
+  try {
+    const { name, email, bio, isActive } = req.body;
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email;
+    if (bio !== undefined) user.bio = bio;
+    if (isActive !== undefined) user.isActive = isActive;
+
+    await user.save();
+
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.toggleUserActive = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (user._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({ success: false, message: 'Cannot deactivate your own account' });
+    }
+
+    user.isActive = !user.isActive;
+    await user.save();
+
+    res.status(200).json({ success: true, data: user });
   } catch (error) {
     next(error);
   }

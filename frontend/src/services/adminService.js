@@ -13,6 +13,14 @@ const adminService = {
     const res = await api.put(`/admin/users/${id}/role`, { role });
     return res.data;
   },
+  updateUser: async (id, data) => {
+    const res = await api.put(`/admin/users/${id}`, data);
+    return res.data;
+  },
+  toggleUserActive: async (id) => {
+    const res = await api.patch(`/admin/users/${id}/toggle-active`);
+    return res.data;
+  },
   deleteUser: async (id) => {
     const res = await api.delete(`/admin/users/${id}`);
     return res.data;

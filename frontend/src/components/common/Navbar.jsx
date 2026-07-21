@@ -20,7 +20,7 @@ import Avatar from './Avatar';
 import SearchBar from './SearchBar';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, loggingOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -57,8 +57,8 @@ const Navbar = () => {
   }, [mobileOpen]);
 
   const handleLogout = async () => {
-    await logout();
     setDropdownOpen(false);
+    await logout();
     navigate('/');
   };
 
@@ -413,6 +413,31 @@ const Navbar = () => {
       </AnimatePresence>
 
       <div className="h-16" />
+
+      <AnimatePresence>
+        {loggingOut && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+            style={{ backgroundColor: 'var(--bg-primary)' }}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="flex flex-col items-center"
+            >
+              <div className="relative mb-6">
+                <div className="w-14 h-14 rounded-full border-4 animate-spin" style={{ borderColor: 'var(--bg-tertiary)', borderTopColor: '#00D4D8' }} />
+              </div>
+              <p className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>Signing you out...</p>
+              <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>See you soon!</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

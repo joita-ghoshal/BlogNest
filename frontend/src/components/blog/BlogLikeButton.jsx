@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { HiHeart } from "react-icons/hi";
 import useAuth from "../../hooks/useAuth";
-import { blogService } from "../../services/blogService";
+import blogService from "../../services/blogService";
 
 export default function BlogLikeButton({ blogId, likes = [], onToggle }) {
   const { user } = useAuth();

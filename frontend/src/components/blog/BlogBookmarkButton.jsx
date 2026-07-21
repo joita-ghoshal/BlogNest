@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { HiBookmark } from "react-icons/hi";
 import useAuth from "../../hooks/useAuth";
-import { blogService } from "../../services/blogService";
+import blogService from "../../services/blogService";
 
 export default function BlogBookmarkButton({ blogId, isBookmarked = false, onToggle }) {
   const { user } = useAuth();
