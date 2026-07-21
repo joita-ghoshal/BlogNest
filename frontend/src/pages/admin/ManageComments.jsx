@@ -4,11 +4,16 @@ import { HiTrash } from 'react-icons/hi';
 import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 import adminService from '../../services/adminService';
+import useAuth from '../../hooks/useAuth';
 import { formatDate, truncateText } from '../../utils/helpers';
 import AdminTable from '../../components/admin/AdminTable';
 import LoadingSkeleton from '../../components/common/LoadingSkeleton';
 
+const DEMO_ADMIN_EMAIL = 'admin@blognest.com';
+
 const ManageComments = () => {
+  const { user: currentUser } = useAuth();
+  const isDemoAdmin = currentUser?.email === DEMO_ADMIN_EMAIL;
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
@@ -59,7 +64,13 @@ const ManageComments = () => {
         {comment.blog?.title || 'Unknown'}
       </span>,
       <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(comment.createdAt)}</span>,
-      <button onClick={() => setDeleteId(comment._id)} className="p-2 rounded-lg" style={{ color: '#EF4444' }}>
+      <button
+        onClick={() => setDeleteId(comment._id)}
+        disabled={isDemoAdmin}
+        className="p-2 rounded-lg disabled:opacity-30"
+        style={{ color: isDemoAdmin ? 'var(--text-muted)' : '#EF4444' }}
+        title={isDemoAdmin ? 'Read-only (Demo Admin)' : 'Delete'}
+      >
         <HiTrash className="w-4 h-4" />
       </button>,
     ],
@@ -73,9 +84,16 @@ const ManageComments = () => {
 
       <div className="p-6 sm:p-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>
-            Manage Comments
-          </h1>
+          <div className="flex items-center gap-3 mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              Manage Comments
+            </h1>
+            {isDemoAdmin && (
+              <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: 'rgba(251,191,36,0.1)', color: '#FBBF24' }}>
+                Read Only
+              </span>
+            )}
+          </div>
 
           <div className="rounded-2xl p-6 sm:p-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
             <AdminTable columns={columns} rows={rows} />

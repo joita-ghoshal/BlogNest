@@ -51,9 +51,9 @@ const Register = () => {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
-          className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start"
+          className="w-full max-w-5xl mx-auto flex flex-col md:flex-row gap-8 items-start"
         >
-          <div className="w-full max-w-md mx-auto md:mx-0">
+          <div className="w-full max-w-md mx-auto md:mx-0 flex-1">
             <div className="text-center mb-8">
               <Link
                 to="/"
@@ -191,67 +191,67 @@ const Register = () => {
           </div>
 
           <div
-            className="rounded-2xl p-6 sm:p-8 w-full max-w-md mx-auto md:mx-0"
+            className="w-full md:w-64 lg:w-72 flex-shrink-0 mt-4 md:mt-24 rounded-2xl p-5"
             style={{
               backgroundColor: 'var(--bg-secondary)',
               border: '1px solid var(--border)',
             }}
           >
-            <h3 className="text-base font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+            <h3 className="text-sm font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
               Demo Credentials
             </h3>
-            <p className="text-sm mb-5" style={{ color: 'var(--text-muted)' }}>
-              Already have an account? Use these to log in directly.
+            <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+              Already have an account? Use these to log in.
             </p>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div
-                className="rounded-xl p-4"
+                className="rounded-xl p-3"
                 style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border)' }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#00D4D8' }}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#00D4D8' }}>
                     Admin
                   </span>
                   <button
                     onClick={() => fillDemo('admin@blognest.com', 'admin123')}
-                    className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors hover:opacity-80"
+                    className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md transition-colors hover:opacity-80"
                     style={{ backgroundColor: 'rgba(0,212,216,0.1)', color: '#00D4D8' }}
                   >
-                    <HiClipboardCheck size={14} />
-                    Use
+                    <HiClipboardCheck size={12} />
+                    Fill
                   </button>
                 </div>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Email:</span> admin@blognest.com
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                  admin@blognest.com
                 </p>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Pass:</span> admin123
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  admin123
                 </p>
               </div>
 
               <div
-                className="rounded-xl p-4"
+                className="rounded-xl p-3"
                 style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border)' }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#8B5CF6' }}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#8B5CF6' }}>
                     User
                   </span>
                   <button
                     onClick={() => fillDemo('user@blognest.com', 'user123456')}
-                    className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors hover:opacity-80"
+                    className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md transition-colors hover:opacity-80"
                     style={{ backgroundColor: 'rgba(139,92,246,0.1)', color: '#8B5CF6' }}
                   >
-                    <HiClipboardCheck size={14} />
-                    Use
+                    <HiClipboardCheck size={12} />
+                    Fill
                   </button>
                 </div>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Email:</span> user@blognest.com
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                  user@blognest.com
                 </p>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Pass:</span> user123456
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  user123456
                 </p>
               </div>
             </div>

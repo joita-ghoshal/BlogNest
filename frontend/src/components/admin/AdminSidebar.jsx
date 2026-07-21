@@ -60,8 +60,10 @@ const AdminSidebar = () => {
         <button
           onClick={handleLogout}
           disabled={loggingOut}
-          className="flex items-center gap-2 py-2 text-sm font-medium transition-colors w-full"
-          style={{ color: '#EF4444' }}
+          className="flex items-center gap-2 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 w-full hover:opacity-80"
+          style={{ color: '#EF4444', backgroundColor: 'rgba(239,68,68,0.08)' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(239,68,68,0.15)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(239,68,68,0.08)'}
         >
           <HiOutlineLogout className="w-4 h-4" />
           {loggingOut ? 'Logging out...' : 'Logout'}

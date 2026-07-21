@@ -5,11 +5,16 @@ import { Helmet } from 'react-helmet-async';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import adminService from '../../services/adminService';
+import useAuth from '../../hooks/useAuth';
 import { formatDate } from '../../utils/helpers';
 import AdminTable from '../../components/admin/AdminTable';
 import LoadingSkeleton from '../../components/common/LoadingSkeleton';
 
+const DEMO_ADMIN_EMAIL = 'admin@blognest.com';
+
 const ManageCategories = () => {
+  const { user: currentUser } = useAuth();
+  const isDemoAdmin = currentUser?.email === DEMO_ADMIN_EMAIL;
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -106,8 +111,24 @@ const ManageCategories = () => {
       <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{cat.slug}</span>,
       <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(cat.createdAt)}</span>,
       <div className="flex items-center gap-2">
-        <button onClick={() => openEditModal(cat)} className="p-2 rounded-lg" style={{ color: '#00D4D8' }}><HiPencil className="w-4 h-4" /></button>
-        <button onClick={() => setDeleteId(cat._id)} className="p-2 rounded-lg" style={{ color: '#EF4444' }}><HiTrash className="w-4 h-4" /></button>
+        <button
+          onClick={() => openEditModal(cat)}
+          disabled={isDemoAdmin}
+          className="p-2 rounded-lg disabled:opacity-30"
+          style={{ color: isDemoAdmin ? 'var(--text-muted)' : '#00D4D8' }}
+          title={isDemoAdmin ? 'Read-only (Demo Admin)' : 'Edit'}
+        >
+          <HiPencil className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => setDeleteId(cat._id)}
+          disabled={isDemoAdmin}
+          className="p-2 rounded-lg disabled:opacity-30"
+          style={{ color: isDemoAdmin ? 'var(--text-muted)' : '#EF4444' }}
+          title={isDemoAdmin ? 'Read-only (Demo Admin)' : 'Delete'}
+        >
+          <HiTrash className="w-4 h-4" />
+        </button>
       </div>,
     ],
   }));
@@ -121,14 +142,23 @@ const ManageCategories = () => {
       <div className="p-6 sm:p-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Manage Categories</h1>
-            <button
-              onClick={openAddModal}
-              className="py-3 px-6 text-base font-semibold rounded-xl flex items-center gap-2"
-              style={{ backgroundColor: '#00D4D8', color: '#000' }}
-            >
-              <HiPlus className="w-5 h-5" /> Add Category
-            </button>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Manage Categories</h1>
+              {isDemoAdmin && (
+                <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: 'rgba(251,191,36,0.1)', color: '#FBBF24' }}>
+                  Read Only
+                </span>
+              )}
+            </div>
+            {!isDemoAdmin && (
+              <button
+                onClick={openAddModal}
+                className="py-3 px-6 text-base font-semibold rounded-xl flex items-center gap-2"
+                style={{ backgroundColor: '#00D4D8', color: '#000' }}
+              >
+                <HiPlus className="w-5 h-5" /> Add Category
+              </button>
+            )}
           </div>
 
           <div className="rounded-2xl p-6 sm:p-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>

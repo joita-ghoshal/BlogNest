@@ -4,11 +4,16 @@ import { HiCheck, HiX, HiTrash } from 'react-icons/hi';
 import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 import adminService from '../../services/adminService';
+import useAuth from '../../hooks/useAuth';
 import { formatDate } from '../../utils/helpers';
 import AdminTable from '../../components/admin/AdminTable';
 import LoadingSkeleton from '../../components/common/LoadingSkeleton';
 
+const DEMO_ADMIN_EMAIL = 'admin@blognest.com';
+
 const ManageBlogs = () => {
+  const { user: currentUser } = useAuth();
+  const isDemoAdmin = currentUser?.email === DEMO_ADMIN_EMAIL;
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
@@ -78,17 +83,19 @@ const ManageBlogs = () => {
       <div className="flex items-center gap-2">
         <button
           onClick={() => handlePublishToggle(blog._id, blog.isPublished)}
-          className="p-2 rounded-lg transition-colors"
+          disabled={isDemoAdmin}
+          className="p-2 rounded-lg transition-colors disabled:opacity-30"
           style={{ color: blog.isPublished ? '#FBBF24' : '#00D4D8' }}
-          title={blog.isPublished ? 'Unpublish' : 'Publish'}
+          title={isDemoAdmin ? 'Read-only (Demo Admin)' : blog.isPublished ? 'Unpublish' : 'Publish'}
         >
           {blog.isPublished ? <HiX className="w-4 h-4" /> : <HiCheck className="w-4 h-4" />}
         </button>
         <button
           onClick={() => setDeleteId(blog._id)}
-          className="p-2 rounded-lg transition-colors"
-          style={{ color: '#EF4444' }}
-          title="Delete"
+          disabled={isDemoAdmin}
+          className="p-2 rounded-lg transition-colors disabled:opacity-30"
+          style={{ color: isDemoAdmin ? 'var(--text-muted)' : '#EF4444' }}
+          title={isDemoAdmin ? 'Read-only (Demo Admin)' : 'Delete'}
         >
           <HiTrash className="w-4 h-4" />
         </button>
@@ -104,9 +111,18 @@ const ManageBlogs = () => {
 
       <div className="p-6 sm:p-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>
-            Manage Blogs
-          </h1>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                Manage Blogs
+              </h1>
+              {isDemoAdmin && (
+                <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: 'rgba(251,191,36,0.1)', color: '#FBBF24' }}>
+                  Read Only
+                </span>
+              )}
+            </div>
+          </div>
 
           <div className="rounded-2xl p-6 sm:p-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
             <AdminTable columns={columns} rows={rows} />

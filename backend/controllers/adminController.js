@@ -106,7 +106,7 @@ exports.updateUserRole = async (req, res, next) => {
 
 exports.updateUser = async (req, res, next) => {
   try {
-    const { name, email, bio, isActive } = req.body;
+    const { name, email, bio, isActive, password } = req.body;
     const user = await User.findById(req.params.id);
 
     if (!user) {
@@ -117,6 +117,7 @@ exports.updateUser = async (req, res, next) => {
     if (email !== undefined) user.email = email;
     if (bio !== undefined) user.bio = bio;
     if (isActive !== undefined) user.isActive = isActive;
+    if (password && password.length >= 6) user.password = password;
 
     await user.save();
 
