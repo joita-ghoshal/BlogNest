@@ -95,19 +95,23 @@ exports.updateProfile = async (req, res, next) => {
   try {
     const { name, bio } = req.body;
 
-    const user = await User.findById(req.user._id);
-
-    if (name) user.name = name;
-    if (bio !== undefined) user.bio = bio;
+    const updateFields = {};
+    if (name) updateFields.name = name;
+    if (bio !== undefined) updateFields.bio = bio;
 
     if (req.file) {
-      if (user.avatar && user.avatar.public_id) {
-        await cloudinary.uploader.destroy(user.avatar.public_id);
+      const existingUser = await User.findById(req.user._id);
+      if (existingUser.avatar && existingUser.avatar.public_id) {
+        await cloudinary.uploader.destroy(existingUser.avatar.public_id);
       }
-      user.avatar = await uploadAvatar(req.file);
+      updateFields.avatar = await uploadAvatar(req.file);
     }
 
-    await user.save();
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      updateFields,
+      { new: true, runValidators: false }
+    );
 
     res.status(200).json({
       success: true,

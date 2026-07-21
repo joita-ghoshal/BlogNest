@@ -186,8 +186,15 @@ exports.changePassword = async (req, res, next) => {
       });
     }
 
-    user.password = newPassword;
-    await user.save();
+    const bcrypt = require('bcryptjs');
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await User.findByIdAndUpdate(
+      req.user._id,
+      { password: hashedPassword },
+      { runValidators: false }
+    );
 
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);

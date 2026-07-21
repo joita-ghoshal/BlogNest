@@ -5,6 +5,9 @@ const Comment = require('../models/Comment');
 const Bookmark = require('../models/Bookmark');
 const cloudinary = require('../config/cloudinary');
 const slugify = require('../utils/slugify');
+const bcrypt = require('bcryptjs');
+
+const VALID_ROLES = ['user', 'admin'];
 
 exports.getStats = async (req, res, next) => {
   try {
@@ -48,16 +51,13 @@ exports.getAllUsers = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     const total = await User.countDocuments();
-    const users = await User.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
 
-    const needsFix = users.filter((u) => !VALID_ROLES.includes(u.role));
-    if (needsFix.length > 0) {
-      await User.updateMany(
-        { role: { $nin: VALID_ROLES } },
-        { $set: { role: 'user' } }
-      );
-      needsFix.forEach((u) => { u.role = 'user'; });
-    }
+    await User.updateMany(
+      { role: { $nin: VALID_ROLES } },
+      { $set: { role: 'user' } }
+    );
+
+    const users = await User.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
 
     res.status(200).json({
       success: true,
@@ -118,42 +118,47 @@ exports.updateUserRole = async (req, res, next) => {
       });
     }
 
-    user.role = role;
-    await user.save();
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      { role },
+      { new: true, runValidators: false }
+    );
 
     res.status(200).json({
       success: true,
-      data: user,
+      data: updated,
     });
   } catch (error) {
     next(error);
   }
 };
 
-const VALID_ROLES = ['user', 'admin'];
-
 exports.updateUser = async (req, res, next) => {
   try {
     const { name, email, bio, isActive, password } = req.body;
-    const user = await User.findById(req.params.id);
 
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    if (!VALID_ROLES.includes(user.role)) {
-      user.role = 'user';
+    const updateFields = {};
+    if (name !== undefined) updateFields.name = name;
+    if (email !== undefined) updateFields.email = email;
+    if (bio !== undefined) updateFields.bio = bio;
+    if (isActive !== undefined) updateFields.isActive = isActive;
+    if (password && password.length >= 6) {
+      const salt = await bcrypt.genSalt(12);
+      updateFields.password = await bcrypt.hash(password, salt);
     }
 
-    if (name !== undefined) user.name = name;
-    if (email !== undefined) user.email = email;
-    if (bio !== undefined) user.bio = bio;
-    if (isActive !== undefined) user.isActive = isActive;
-    if (password && password.length >= 6) user.password = password;
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      updateFields,
+      { new: true, runValidators: false }
+    );
 
-    await user.save();
-
-    res.status(200).json({ success: true, data: user });
+    res.status(200).json({ success: true, data: updated });
   } catch (error) {
     next(error);
   }
@@ -171,14 +176,13 @@ exports.toggleUserActive = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Cannot deactivate your own account' });
     }
 
-    if (!VALID_ROLES.includes(user.role)) {
-      user.role = 'user';
-    }
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      { isActive: !user.isActive },
+      { new: true, runValidators: false }
+    );
 
-    user.isActive = !user.isActive;
-    await user.save();
-
-    res.status(200).json({ success: true, data: user });
+    res.status(200).json({ success: true, data: updated });
   } catch (error) {
     next(error);
   }
