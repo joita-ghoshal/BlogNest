@@ -77,7 +77,7 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           onSubmit={handleSearch}
-          className="flex items-center gap-2 max-w-xl mx-auto"
+          className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-xl mx-auto"
         >
           <div className="relative flex-1">
             <HiSearch size={18} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
@@ -96,7 +96,7 @@ const HeroSection = () => {
           </div>
           <button
             type="submit"
-            className="px-8 py-4 text-sm font-semibold text-white rounded-xl shadow-md hover:shadow-lg transition-all"
+            className="px-8 py-4 text-sm font-semibold text-white rounded-xl shadow-md hover:shadow-lg transition-all whitespace-nowrap"
             style={{ backgroundColor: '#00D4D8' }}
           >
             Search
@@ -107,7 +107,7 @@ const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="flex items-center justify-center gap-8 mt-10 text-sm"
+          className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 mt-8 sm:mt-10 text-xs sm:text-sm"
           style={{ color: 'var(--text-muted)' }}
         >
           <span><strong className="text-[#00D4D8]">10K+</strong> Articles</span>

@@ -41,21 +41,21 @@ const ManageBlogs = () => {
 
   const columns = [
     { key: 'title', label: 'Title', render: (row) => (
-      <Link to={`/blogs/${row.slug || row._id}`} className="text-sm font-medium hover:text-[#00D4D8] transition-colors line-clamp-1" style={{ color: 'var(--text-primary)' }}>{row.title}</Link>
+      <Link to={`/blogs/${row.slug || row._id}`} className="text-sm font-medium hover:text-[#00D4D8] transition-colors line-clamp-1 max-w-[200px] sm:max-w-none" style={{ color: 'var(--text-primary)' }}>{row.title}</Link>
     )},
     { key: 'author', label: 'Author', render: (row) => <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{row.author?.name || 'Unknown'}</span> },
     { key: 'status', label: 'Status', render: (row) => (
-      <span className={`px-2 py-1 text-xs rounded-full font-medium ${row.isPublished ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+      <span className={`px-2 py-1 text-xs rounded-full font-medium whitespace-nowrap ${row.isPublished ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'}`}>
         {row.isPublished ? 'Published' : 'Draft'}
       </span>
     )},
-    { key: 'createdAt', label: 'Date', render: (row) => <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(row.createdAt)}</span> },
+    { key: 'createdAt', label: 'Date', render: (row) => <span className="text-xs sm:text-sm whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>{formatDate(row.createdAt)}</span> },
     { key: 'actions', label: 'Actions', render: (row) => (
-      <div className="flex gap-2">
-        <button onClick={() => handleToggleStatus(row)} className="px-3 py-1 text-xs font-medium rounded-lg" style={{ backgroundColor: row.isPublished ? '#FEF3C7' : '#D1FAE5', color: row.isPublished ? '#92400E' : '#065F46' }}>
+      <div className="flex gap-1.5 sm:gap-2 flex-wrap">
+        <button onClick={() => handleToggleStatus(row)} className="px-2 sm:px-3 py-1 text-xs font-medium rounded-lg whitespace-nowrap" style={{ backgroundColor: row.isPublished ? '#FEF3C7' : '#D1FAE5', color: row.isPublished ? '#92400E' : '#065F46' }}>
           {row.isPublished ? 'Unpublish' : 'Publish'}
         </button>
-        <button onClick={() => setDeleteId(row._id)} className="px-3 py-1 text-xs font-medium text-white rounded-lg" style={{ backgroundColor: '#EF4444' }}>Delete</button>
+        <button onClick={() => setDeleteId(row._id)} className="px-2 sm:px-3 py-1 text-xs font-medium text-white rounded-lg" style={{ backgroundColor: '#EF4444' }}>Delete</button>
       </div>
     )},
   ];
@@ -64,7 +64,7 @@ const ManageBlogs = () => {
     <>
       <Helmet><title>Manage Blogs - Admin - BlogNest</title></Helmet>
       <div>
-        <h1 className="text-2xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>Manage Blogs</h1>
+        <h1 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8" style={{ color: 'var(--text-primary)' }}>Manage Blogs</h1>
         {loading ? <Loading /> : <AdminTable columns={columns} data={blogs} />}
       </div>
       <ConfirmModal isOpen={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete} title="Delete Blog" message="Are you sure you want to delete this blog?" />

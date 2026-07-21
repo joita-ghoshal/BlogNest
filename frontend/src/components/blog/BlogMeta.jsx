@@ -20,7 +20,7 @@ const BlogMeta = ({ blog }) => {
         {blog?.excerpt || ''}
       </p>
 
-      <div className="flex flex-wrap items-center gap-4 pt-2">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3 sm:gap-4 pt-2">
         <Link to={`/author/${author._id}`} className="flex items-center gap-3">
           <Avatar user={author} size="md" />
           <div>
@@ -29,7 +29,7 @@ const BlogMeta = ({ blog }) => {
           </div>
         </Link>
 
-        <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-muted)' }}>
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm" style={{ color: 'var(--text-muted)' }}>
           <span className="flex items-center gap-1">
             <HiCalendar size={16} />
             {formatDate(blog?.createdAt)}

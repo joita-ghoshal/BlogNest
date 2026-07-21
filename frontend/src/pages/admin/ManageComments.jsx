@@ -33,7 +33,7 @@ const ManageComments = () => {
     { key: 'content', label: 'Comment', render: (row) => <span className="text-sm line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{truncateText(row.content, 80)}</span> },
     { key: 'user', label: 'User', render: (row) => <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{row.user?.name || 'Unknown'}</span> },
     { key: 'blog', label: 'Blog', render: (row) => <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{row.blog?.title || 'Deleted'}</span> },
-    { key: 'createdAt', label: 'Date', render: (row) => <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(row.createdAt)}</span> },
+    { key: 'createdAt', label: 'Date', render: (row) => <span className="text-xs sm:text-sm whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>{formatDate(row.createdAt)}</span> },
     { key: 'actions', label: 'Actions', render: (row) => (
       <button onClick={() => setDeleteId(row._id)} className="px-3 py-1 text-xs font-medium text-white rounded-lg" style={{ backgroundColor: '#EF4444' }}>Delete</button>
     )},
@@ -43,7 +43,7 @@ const ManageComments = () => {
     <>
       <Helmet><title>Manage Comments - Admin - BlogNest</title></Helmet>
       <div>
-        <h1 className="text-2xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>Manage Comments</h1>
+        <h1 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8" style={{ color: 'var(--text-primary)' }}>Manage Comments</h1>
         {loading ? <Loading /> : <AdminTable columns={columns} data={comments} />}
       </div>
       <ConfirmModal isOpen={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete} title="Delete Comment" message="Are you sure you want to delete this comment?" />

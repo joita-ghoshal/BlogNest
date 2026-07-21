@@ -60,20 +60,20 @@ const Footer = () => {
           <div>
             <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Newsletter</h3>
             <p className="text-sm mb-3" style={{ color: 'var(--text-muted)' }}>Stay updated with the latest blogs.</p>
-            <form onSubmit={handleSubscribe} className="flex gap-2">
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="flex-1 px-3 py-2 text-sm rounded-lg border outline-none focus:ring-2 focus:ring-[#00D4D8]/50"
+                className="flex-1 px-3 py-2 text-sm rounded-lg border outline-none focus:ring-2 focus:ring-[#00D4D8]/50 min-w-0"
                 style={{
                   backgroundColor: 'var(--bg-primary)',
                   borderColor: 'var(--border)',
                   color: 'var(--text-primary)',
                 }}
               />
-              <button type="submit" className="px-4 py-2 text-sm font-medium text-white rounded-lg" style={{ backgroundColor: '#00D4D8' }}>
+              <button type="submit" className="px-4 py-2 text-sm font-medium text-white rounded-lg whitespace-nowrap" style={{ backgroundColor: '#00D4D8' }}>
                 Subscribe
               </button>
             </form>

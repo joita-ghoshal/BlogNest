@@ -33,7 +33,7 @@ const LatestBlogs = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex items-center justify-between mb-10"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-10"
         >
           <div>
             <h2 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>

@@ -36,11 +36,11 @@ const Profile = () => {
   return (
     <>
       <Helmet><title>{user.name} - BlogNest</title></Helmet>
-      <div className="max-w-4xl mx-auto px-4 py-10">
-        <div className="rounded-2xl p-8 mb-10" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-10">
+        <div className="rounded-2xl p-6 sm:p-8 mb-10" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             <Avatar user={user} size="xl" />
-            <div className="text-center md:text-left flex-1">
+            <div className="text-center sm:text-left flex-1 min-w-0">
               <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{user.name}</h1>
               <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>{user.email}</p>
               {user.bio && <p className="text-sm mt-3" style={{ color: 'var(--text-secondary)' }}>{user.bio}</p>}

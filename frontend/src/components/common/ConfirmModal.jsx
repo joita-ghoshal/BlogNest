@@ -16,7 +16,7 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="relative w-full max-w-md rounded-2xl p-6 shadow-xl"
+            className="relative w-full max-w-md rounded-2xl p-5 sm:p-6 shadow-xl mx-4"
             style={{ backgroundColor: 'var(--bg-primary)' }}
           >
             <div className="flex items-center gap-3 mb-4">

@@ -6,7 +6,7 @@ const NotFound = () => {
   return (
     <>
       <Helmet><title>404 Not Found - BlogNest</title></Helmet>
-      <div className="min-h-[70vh] flex items-center justify-center px-4">
+      <div className="min-h-[70vh] flex items-center justify-center px-4 py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
           <div className="text-8xl font-bold mb-4" style={{ color: '#00D4D8' }}>404</div>
           <h1 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Page Not Found</h1>

@@ -3,9 +3,12 @@ const BlogContent = ({ content }) => {
 
   return (
     <div
-      className="prose prose-lg max-w-none"
+      className="prose prose-lg max-w-none word-break"
       style={{
         color: 'var(--text-secondary)',
+        lineHeight: '1.75',
+        overflowWrap: 'break-word',
+        wordWrap: 'break-word',
       }}
       dangerouslySetInnerHTML={{ __html: content }}
     />

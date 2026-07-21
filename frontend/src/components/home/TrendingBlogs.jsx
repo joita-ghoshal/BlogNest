@@ -55,25 +55,25 @@ const TrendingBlogs = () => {
             >
               <Link
                 to={`/blogs/${blog.slug || blog._id}`}
-                className="flex items-start gap-4 p-4 rounded-xl transition-all hover:shadow-md group"
+                className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl transition-all hover:shadow-md group"
                 style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)' }}
               >
                 <span
-                  className="text-3xl font-bold w-12 h-12 flex items-center justify-center rounded-xl flex-shrink-0"
+                  className="text-xl sm:text-3xl font-bold w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl flex-shrink-0"
                   style={{ backgroundColor: '#00D4D815', color: '#00D4D8' }}
                 >
                   {i + 1}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold group-hover:text-[#00D4D8] transition-colors line-clamp-1" style={{ color: 'var(--text-primary)' }}>
+                  <h3 className="text-sm sm:text-base font-semibold group-hover:text-[#00D4D8] transition-colors line-clamp-1" style={{ color: 'var(--text-primary)' }}>
                     {blog.title}
                   </h3>
-                  <p className="text-sm mt-1 line-clamp-1" style={{ color: 'var(--text-muted)' }}>
+                  <p className="text-xs sm:text-sm mt-1 line-clamp-1" style={{ color: 'var(--text-muted)' }}>
                     {truncateText(stripHtml(blog.content || ''), 100)}
                   </p>
-                  <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: 'var(--text-muted)' }}>
-                    <span>{blog.author?.name || 'Unknown'}</span>
-                    <span>{blog.likes?.length || 0} likes</span>
+                  <div className="flex items-center gap-2 sm:gap-3 mt-1.5 sm:mt-2 text-xs" style={{ color: 'var(--text-muted)' }}>
+                    <span className="line-clamp-1">{blog.author?.name || 'Unknown'}</span>
+                    <span className="flex-shrink-0">{blog.likes?.length || 0} likes</span>
                   </div>
                 </div>
               </Link>

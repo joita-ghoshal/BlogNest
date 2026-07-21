@@ -35,16 +35,16 @@ const AdminDashboard = () => {
     <>
       <Helmet><title>Admin Dashboard - BlogNest</title></Helmet>
       <div>
-        <h1 className="text-2xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>Dashboard</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8" style={{ color: 'var(--text-primary)' }}>Dashboard</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {statCards.map((card) => (
             <StatsCard key={card.label} {...card} />
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="rounded-2xl p-6" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border)' }}>
-            <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Recent Blogs</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <div className="rounded-2xl p-4 sm:p-6" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border)' }}>
+            <h3 className="text-base sm:text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Recent Blogs</h3>
             <div className="space-y-4">
               {stats?.recentBlogs?.slice(0, 5).map((blog, i) => (
                 <div key={i} className="flex items-center gap-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -57,8 +57,8 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="rounded-2xl p-6" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border)' }}>
-            <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Stats</h3>
+          <div className="rounded-2xl p-4 sm:p-6" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border)' }}>
+            <h3 className="text-base sm:text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Stats</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'var(--border)' }}>
                 <span className="text-sm" style={{ color: 'var(--text-muted)' }}>Published Blogs</span>

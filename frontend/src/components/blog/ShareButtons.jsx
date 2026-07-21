@@ -31,7 +31,7 @@ const ShareButtons = ({ blog }) => {
   ];
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 flex-wrap justify-end">
       {buttons.map((btn) => (
         <button
           key={btn.label}

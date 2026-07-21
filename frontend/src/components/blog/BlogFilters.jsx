@@ -2,11 +2,11 @@ import { SORT_OPTIONS } from '../../utils/constants';
 
 const BlogFilters = ({ categories = [], selectedCategory, onCategoryChange, sortBy, onSortChange, selectedTags = [], onTagToggle }) => {
   return (
-    <div className="flex flex-wrap gap-3 mb-6">
+    <div className="flex flex-col sm:flex-row gap-3 mb-6">
       <select
         value={selectedCategory || ''}
         onChange={(e) => onCategoryChange(e.target.value)}
-        className="px-4 py-2 rounded-xl text-sm border outline-none focus:ring-2 focus:ring-[#00D4D8]/50"
+        className="w-full sm:w-auto px-4 py-2 rounded-xl text-sm border outline-none focus:ring-2 focus:ring-[#00D4D8]/50"
         style={{
           backgroundColor: 'var(--bg-secondary)',
           borderColor: 'var(--border)',
@@ -22,7 +22,7 @@ const BlogFilters = ({ categories = [], selectedCategory, onCategoryChange, sort
       <select
         value={sortBy || 'latest'}
         onChange={(e) => onSortChange(e.target.value)}
-        className="px-4 py-2 rounded-xl text-sm border outline-none focus:ring-2 focus:ring-[#00D4D8]/50"
+        className="w-full sm:w-auto px-4 py-2 rounded-xl text-sm border outline-none focus:ring-2 focus:ring-[#00D4D8]/50"
         style={{
           backgroundColor: 'var(--bg-secondary)',
           borderColor: 'var(--border)',

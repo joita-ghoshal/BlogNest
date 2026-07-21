@@ -57,7 +57,7 @@ const PopularAuthors = () => {
             Follow writers you love
           </p>
         </motion.div>
-        <div className="flex gap-6 overflow-x-auto pb-4">
+        <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
           {authors.slice(0, 8).map((author, i) => (
             <motion.div
               key={author._id}

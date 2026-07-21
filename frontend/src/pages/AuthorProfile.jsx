@@ -36,8 +36,8 @@ const AuthorProfile = () => {
   return (
     <>
       <Helmet><title>{author.name} - BlogNest</title></Helmet>
-      <div className="max-w-4xl mx-auto px-4 py-10">
-        <div className="rounded-2xl p-8 mb-10 text-center" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-10">
+        <div className="rounded-2xl p-6 sm:p-8 mb-10 text-center" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
           <Avatar user={author} size="xl" />
           <h1 className="text-2xl font-bold mt-4" style={{ color: 'var(--text-primary)' }}>{author.name}</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>{author.email}</p>

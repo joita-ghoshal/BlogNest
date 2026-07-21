@@ -59,12 +59,12 @@ const BlogDetail = () => {
         <title>{blog.title} - BlogNest</title>
         <meta name="description" content={blog.excerpt || blog.title} />
       </Helmet>
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+      <article className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         {blog.featuredImage?.url && (
           <img
             src={blog.featuredImage.url}
             alt={blog.title}
-            className="w-full h-64 md:h-96 object-cover rounded-2xl mb-8"
+            className="w-full h-48 sm:h-64 md:h-96 object-cover rounded-2xl mb-6 sm:mb-8"
           />
         )}
 
@@ -75,11 +75,11 @@ const BlogDetail = () => {
         </div>
 
         {blog.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-8">
+          <div className="flex flex-wrap gap-2 mb-6 sm:mb-8">
             {blog.tags.map((tag, i) => (
               <span
                 key={i}
-                className="px-3 py-1 text-xs rounded-full"
+                className="px-3 py-1 text-xs rounded-full whitespace-nowrap"
                 style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
               >
                 #{tag}
@@ -88,7 +88,7 @@ const BlogDetail = () => {
           </div>
         )}
 
-        <div className="flex items-center justify-between py-6 border-t border-b" style={{ borderColor: 'var(--border)' }}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-6 border-t border-b" style={{ borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-3">
             <BlogLikeButton blog={blog} onToggle={(updated) => setBlog(updated)} />
             <BlogBookmarkButton blog={blog} onToggle={(updated) => setBlog(updated)} />

@@ -26,8 +26,8 @@ const MyBookmarks = () => {
   return (
     <>
       <Helmet><title>My Bookmarks - BlogNest</title></Helmet>
-      <div className="max-w-4xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>My Bookmarks</h1>
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-10">
+        <h1 className="text-2xl font-bold mb-6 sm:mb-8" style={{ color: 'var(--text-primary)' }}>My Bookmarks</h1>
         {loading ? (
           <Loading />
         ) : blogs.length === 0 ? (

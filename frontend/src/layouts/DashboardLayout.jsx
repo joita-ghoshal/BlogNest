@@ -15,7 +15,7 @@ const DashboardLayout = () => {
             <HiMenuAlt2 size={24} />
           </button>
         </div>
-        <main className="p-4 lg:p-8">
+        <main className="p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>

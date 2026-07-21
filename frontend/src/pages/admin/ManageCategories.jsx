@@ -79,8 +79,8 @@ const ManageCategories = () => {
     <>
       <Helmet><title>Manage Categories - Admin - BlogNest</title></Helmet>
       <div>
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Manage Categories</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Manage Categories</h1>
           <button onClick={() => openModal()} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-xl" style={{ backgroundColor: '#00D4D8' }}>
             <HiPlus size={18} /> Add Category
           </button>
@@ -94,7 +94,7 @@ const ManageCategories = () => {
         {modalOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50" onClick={() => setModalOpen(false)} />
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative w-full max-w-md rounded-2xl p-6 shadow-xl" style={{ backgroundColor: 'var(--bg-primary)' }}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative w-full max-w-md rounded-2xl p-5 sm:p-6 shadow-xl mx-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
               <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>{editingCategory ? 'Edit' : 'Add'} Category</h3>
               <div className="space-y-4">
                 <div>

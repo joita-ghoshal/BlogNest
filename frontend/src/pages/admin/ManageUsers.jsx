@@ -49,12 +49,12 @@ const ManageUsers = () => {
       </div>
     )},
     { key: 'role', label: 'Role', render: (row) => (
-      <select value={row.role} onChange={(e) => handleRoleChange(row._id, e.target.value)} className="px-3 py-1 text-xs rounded-lg border outline-none" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
+      <select value={row.role} onChange={(e) => handleRoleChange(row._id, e.target.value)} className="px-2 sm:px-3 py-1 text-xs rounded-lg border outline-none" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
         <option value="user">User</option>
         <option value="admin">Admin</option>
       </select>
     )},
-    { key: 'createdAt', label: 'Joined', render: (row) => <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(row.createdAt)}</span> },
+    { key: 'createdAt', label: 'Joined', render: (row) => <span className="text-xs sm:text-sm whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>{formatDate(row.createdAt)}</span> },
     { key: 'actions', label: 'Actions', render: (row) => (
       <button onClick={() => setDeleteId(row._id)} className="px-3 py-1 text-xs font-medium text-white rounded-lg" style={{ backgroundColor: '#EF4444' }}>Delete</button>
     )},
@@ -64,7 +64,7 @@ const ManageUsers = () => {
     <>
       <Helmet><title>Manage Users - Admin - BlogNest</title></Helmet>
       <div>
-        <h1 className="text-2xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>Manage Users</h1>
+        <h1 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8" style={{ color: 'var(--text-primary)' }}>Manage Users</h1>
         {loading ? <Loading /> : <AdminTable columns={columns} data={users} />}
       </div>
       <ConfirmModal isOpen={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete} title="Delete User" message="Are you sure you want to delete this user? This action cannot be undone." />

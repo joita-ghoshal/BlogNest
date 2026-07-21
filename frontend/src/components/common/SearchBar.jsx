@@ -17,7 +17,7 @@ const SearchBar = ({ onClose, initialValue = '' }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative flex items-center gap-2">
+    <form onSubmit={handleSubmit} className="relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
       <div className="relative flex-1">
         <HiSearch
           size={18}

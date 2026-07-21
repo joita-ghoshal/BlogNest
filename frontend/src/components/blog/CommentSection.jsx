@@ -108,8 +108,13 @@ const CommentSection = ({ blogId }) => {
             </div>
           )}
           <div className="flex gap-3">
-            <Avatar user={user} size="sm" />
-            <div className="flex-1">
+            <div className="hidden sm:block">
+              <Avatar user={user} size="sm" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="sm:hidden mb-2">
+                <Avatar user={user} size="sm" />
+              </div>
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}

@@ -50,9 +50,9 @@ const EditProfile = () => {
   return (
     <>
       <Helmet><title>Edit Profile - BlogNest</title></Helmet>
-      <div className="max-w-2xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>Edit Profile</h1>
-        <motion.form initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} onSubmit={handleSubmit(onSubmit)} className="space-y-6" style={{ backgroundColor: 'var(--bg-secondary)', padding: '32px', borderRadius: '16px', border: '1px solid var(--border)' }}>
+      <div className="max-w-2xl mx-auto px-4 py-8 sm:py-10">
+        <h1 className="text-2xl font-bold mb-6 sm:mb-8" style={{ color: 'var(--text-primary)' }}>Edit Profile</h1>
+        <motion.form initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} onSubmit={handleSubmit(onSubmit)} className="space-y-5 sm:space-y-6" style={{ backgroundColor: 'var(--bg-secondary)', padding: '20px', borderRadius: '16px', border: '1px solid var(--border)' }}>
           <div className="flex justify-center">
             {preview ? (
               <img src={preview} alt="Avatar" className="w-24 h-24 rounded-full object-cover ring-2 ring-[#00D4D8]/20" />

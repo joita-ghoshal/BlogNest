@@ -47,7 +47,8 @@ const NewsletterSection = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="flex-1 px-5 py-3 rounded-xl text-sm outline-none"
+                className="flex-1 px-5 py-3 rounded-xl text-sm outline-none min-w-0"
+                style={{ backgroundColor: '#ffffff', color: '#111827', border: 'none' }}
                 required
               />
               <button
