@@ -1,13 +1,14 @@
 import api from './api';
+import { shapeList, shapeItem } from '../utils/shapeList';
 
 const commentService = {
   getComments: async (blogId) => {
     const res = await api.get(`/comments/blog/${blogId}`);
-    return res.data;
+    return shapeList(res.data, 'comments');
   },
   createComment: async (data) => {
     const res = await api.post('/comments', data);
-    return res.data;
+    return shapeItem(res.data, 'comment');
   },
   deleteComment: async (id) => {
     const res = await api.delete(`/comments/${id}`);

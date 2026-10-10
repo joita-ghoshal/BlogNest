@@ -1,9 +1,10 @@
 import api from './api';
+import { shapeList } from '../utils/shapeList';
 
 const blogService = {
   getBlogs: async (params) => {
     const res = await api.get('/blogs', { params });
-    return res.data;
+    return shapeList(res.data, 'blogs');
   },
   getBlog: async (slug) => {
     const res = await api.get(`/blogs/${slug}`);
@@ -11,19 +12,19 @@ const blogService = {
   },
   getFeaturedBlogs: async () => {
     const res = await api.get('/blogs/featured');
-    return res.data;
+    return shapeList(res.data, 'blogs');
   },
   getTrendingBlogs: async () => {
     const res = await api.get('/blogs/trending');
-    return res.data;
+    return shapeList(res.data, 'blogs');
   },
   getLatestBlogs: async () => {
     const res = await api.get('/blogs/latest');
-    return res.data;
+    return shapeList(res.data, 'blogs');
   },
   getMyBlogs: async (params) => {
     const res = await api.get('/blogs/my', { params });
-    return res.data;
+    return shapeList(res.data, 'blogs');
   },
   createBlog: async (formData) => {
     const res = await api.post('/blogs', formData, {
@@ -51,7 +52,7 @@ const blogService = {
   },
   getBookmarks: async (params) => {
     const res = await api.get('/blogs/bookmarks', { params });
-    return res.data;
+    return shapeList(res.data, 'blogs');
   },
 };
 

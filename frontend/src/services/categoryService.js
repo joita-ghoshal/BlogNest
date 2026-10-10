@@ -1,9 +1,10 @@
 import api from './api';
+import { shapeList } from '../utils/shapeList';
 
 const categoryService = {
   getCategories: async () => {
     const res = await api.get('/categories');
-    return res.data;
+    return shapeList(res.data, 'categories');
   },
   createCategory: async (data) => {
     const res = await api.post('/categories', data);

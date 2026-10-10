@@ -13,7 +13,7 @@ export default function BlogBookmarkButton({ blogId, isBookmarked = false, onTog
     setLoading(true);
     try {
       const data = await blogService.toggleBookmark(blogId);
-      setBookmarked(data.bookmarked ?? !bookmarked);
+      setBookmarked(data?.bookmarked ?? data?.data?.bookmarked ?? !bookmarked);
       if (onToggle) onToggle(data);
     } catch (err) {
       console.error("Failed to toggle bookmark:", err);
