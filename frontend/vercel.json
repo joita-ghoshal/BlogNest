@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://blognest-api-868i.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
