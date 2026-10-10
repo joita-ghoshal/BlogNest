@@ -25,16 +25,17 @@ app.use(helmet());
 
 const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173,https://blognest-tau.vercel.app')
   .split(',')
-  .map((o) => o.trim());
+  .map((o) => o.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
-        callback(null, true);
-      } else {
-        callback(null, true);
+      // Allow same-origin/non-browser requests (no Origin header) + explicitly allowed origins only.
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
       }
+      return callback(null, false);
     },
     credentials: true,
   })
